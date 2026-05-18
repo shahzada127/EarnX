@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#060610"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>EarnX Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#060610;--surface:#0f0f1e;--card:#161628;--border:#252540;
+  --accent:#00ff88;--a2:#7c3aed;--a3:#f59e0b;--a4:#ef4444;--a5:#0ea5e9;
+  --text:#eeeeff;--muted:#6b6b99;--gold:#fbbf24;
+  --grad: linear-gradient(135deg,#00ff88,#0ea5e9);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:90px;}
+
+/* AMBIENT */
+.ambient{position:fixed;pointer-events:none;z-index:0;}
+.amb1{top:-150px;left:-150px;width:400px;height:400px;background:radial-gradient(circle,rgba(0,255,136,.07),transparent 65%);}
+.amb2{bottom:-150px;right:-150px;width:400px;height:400px;background:radial-gradient(circle,rgba(124,58,237,.08),transparent 65%);}
+
+/* AUTH SCREENS */
+#authScreen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+.auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:2.4rem;margin-bottom:6px;}
+.auth-logo span{color:var(--accent);}
+.auth-tagline{color:var(--muted);font-size:.88rem;margin-bottom:36px;text-align:center;}
+.auth-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 24px;width:100%;max-width:400px;}
+.auth-tabs{display:flex;background:var(--surface);border-radius:14px;padding:4px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:10px;text-align:center;border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted);transition:all .2s;}
+.auth-tab.active{background:var(--accent);color:#000;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:500;}
+.field input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border .2s;}
+.field input:focus{border-color:var(--accent);}
+.btn-auth{width:100%;background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:700;border:none;border-radius:14px;padding:15px;font-size:1rem;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-auth:hover{opacity:.9;transform:translateY(-1px);}
+.auth-err{color:var(--a4);font-size:.8rem;text-align:center;margin-top:10px;min-height:18px;}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(6,6,16,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;}
+.logo span{color:var(--accent);}
+.hdr-right{display:flex;align-items:center;gap:10px;}
+.bal-pill{background:linear-gradient(135deg,var(--a2),var(--accent));border-radius:20px;padding:7px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;}
+.avatar-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;}
+
+/* PAGES */
+.page{display:none;animation:fadeUp .35s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+/* HERO */
+.hero{margin:14px;background:linear-gradient(135deg,var(--card),#1a1a30);border:1px solid var(--border);border-radius:22px;padding:22px 20px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(0,255,136,.12),transparent 65%);pointer-events:none;}
+.hero-lbl{color:var(--muted);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.hero-bal{font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;}
+.hero-sub{color:var(--muted);font-size:.82rem;margin-top:5px;}
+.hero-btns{display:flex;gap:10px;margin-top:18px;}
+.btn-g{flex:1;background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:700;border:none;border-radius:13px;padding:13px;cursor:pointer;font-size:.88rem;transition:all .2s;}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,255,136,.25);}
+.btn-o{flex:1;background:transparent;color:var(--text);font-family:'Syne',sans-serif;font-weight:600;border:1px solid var(--border);border-radius:13px;padding:13px;cursor:pointer;font-size:.88rem;transition:all .2s;}
+.btn-o:hover{border-color:var(--accent);color:var(--accent);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 14px 14px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center;}
+.sc-v{font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem;}
+.sc-l{color:var(--muted);font-size:.7rem;margin-top:2px;}
+
+/* SECTION TITLE */
+.sec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;padding:4px 14px 10px;display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* TABS */
+.tabs{display:flex;gap:8px;padding:0 14px 14px;overflow-x:auto;scrollbar-width:none;}
+.tab{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--muted);transition:all .2s;}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+
+/* TASK CARDS */
+.tasks{padding:0 14px;display:flex;flex-direction:column;gap:10px;}
+.tc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:15px;display:flex;align-items:center;gap:12px;cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
+.tc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.tc.green::before{background:var(--accent);}
+.tc.purple::before{background:var(--a2);}
+.tc.amber::before{background:var(--a3);}
+.tc.red::before{background:var(--a4);}
+.tc.blue::before{background:var(--a5);}
+.tc:hover{transform:translateX(4px);border-color:rgba(0,255,136,.3);}
+.tc.done{opacity:.5;pointer-events:none;}
+.ti{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.ti.green{background:rgba(0,255,136,.1);}
+.ti.purple{background:rgba(124,58,237,.1);}
+.ti.amber{background:rgba(245,158,11,.1);}
+.ti.red{background:rgba(239,68,68,.1);}
+.ti.blue{background:rgba(14,165,233,.1);}
+.tn{font-weight:600;font-size:.9rem;}
+.td{color:var(--muted);font-size:.76rem;margin-top:2px;}
+.tr{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;color:var(--accent);text-align:right;}
+.tt{color:var(--muted);font-size:.7rem;margin-top:2px;text-align:right;}
+.badge{position:absolute;top:8px;right:8px;border-radius:6px;padding:2px 7px;font-size:.66rem;font-weight:700;}
+.badge.hot{background:var(--a4);color:#fff;}
+.badge.new{background:var(--a2);color:#fff;}
+.badge.easy{background:var(--accent);color:#000;}
+
+/* PROGRESS */
+.prog-wrap{margin:0 14px 14px;}
+.prog-lbl{display:flex;justify-content:space-between;margin-bottom:6px;font-size:.8rem;color:var(--muted);}
+.prog-bar{height:6px;background:var(--border);border-radius:10px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--grad);border-radius:10px;transition:width 1s ease;}
+
+/* REFERRAL */
+.ref-box{margin:0 14px 14px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(0,255,136,.07));border:1px solid rgba(124,58,237,.25);border-radius:18px;padding:18px;}
+.ref-code{background:var(--surface);border:1px dashed var(--border);border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.ref-code span{font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.1em;color:var(--accent);}
+.copy-btn{background:var(--a2);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;cursor:pointer;font-weight:600;transition:all .2s;}
+.copy-btn:hover{opacity:.85;}
+
+/* AI */
+.ai-box{margin:0 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.ai-hdr{background:linear-gradient(135deg,var(--a2),var(--a5));padding:13px 16px;display:flex;align-items:center;gap:10px;}
+.ai-av{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.ai-name{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;}
+.ai-st{font-size:.72rem;opacity:.8;}
+.ai-msgs{padding:14px;min-height:120px;max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;padding:10px 13px;border-radius:14px;font-size:.83rem;line-height:1.5;}
+.msg.bot{background:var(--surface);border-radius:4px 14px 14px 14px;}
+.msg.user{background:linear-gradient(135deg,var(--a2),var(--a5));color:#fff;border-radius:14px 4px 14px 14px;align-self:flex-end;}
+.ai-inp-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
+.ai-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;transition:border .2s;}
+.ai-inp:focus{border-color:var(--a2);}
+.ai-send{background:linear-gradient(135deg,var(--a2),var(--a5));border:none;border-radius:11px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:transform .2s;}
+.ai-send:hover{transform:scale(1.08);}
+
+/* LEADERBOARD */
+.lead-list{padding:0 14px;display:flex;flex-direction:column;gap:8px;}
+.li{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 15px;display:flex;align-items:center;gap:12px;}
+.rk{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;width:22px;text-align:center;}
+.rk.g{color:var(--gold);}
+.rk.s{color:#94a3b8;}
+.rk.b{color:#cd7c2a;}
+.lav{width:34px;height:34px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:1rem;}
+.ln{flex:1;font-weight:500;font-size:.86rem;}
+.le{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;color:var(--accent);}
+
+/* WALLET */
+.wallet-pad{padding:14px;}
+.tx-item{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px 15px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.tx-lbl{font-size:.86rem;font-weight:500;}
+.tx-time{font-size:.73rem;color:var(--muted);}
+.tx-amt{font-family:'Syne',sans-serif;font-weight:700;font-size:.88rem;}
+.tx-amt.plus{color:var(--accent);}
+.tx-amt.minus{color:var(--a4);}
+.tx-amt.pend{color:var(--a3);}
+
+/* COMING SOON BANNER */
+.cs-banner{background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(239,68,68,.08));border:1px solid rgba(245,158,11,.25);border-radius:16px;padding:18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.cs-icon{font-size:2rem;}
+.cs-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem;color:var(--a3);}
+.cs-sub{font-size:.78rem;color:var(--muted);margin-top:3px;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(6,6,16,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:10px 0 env(safe-area-inset-bottom,16px);}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;transition:all .2s;}
+.ni-icon{font-size:1.25rem;transition:transform .2s;}
+.ni-lbl{font-size:.65rem;color:var(--muted);font-weight:500;}
+.ni.active .ni-lbl{color:var(--accent);}
+.ni.active .ni-icon{transform:scale(1.1);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:28px 28px 0 0;padding:24px;width:100%;max-width:500px;transform:translateY(100%);transition:transform .3s;border-top:1px solid var(--border);}
+.overlay.show .modal{transform:translateY(0);}
+.m-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 20px;}
+.m-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem;margin-bottom:16px;}
+
+/* VIDEO MODAL */
+.yt-embed{width:100%;aspect-ratio:16/9;border-radius:16px;border:none;background:#000;margin-bottom:14px;}
+.ad-timer-box{background:var(--card);border-radius:16px;padding:24px;text-align:center;border:1px solid var(--border);}
+.t-circle{width:72px;height:72px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent);margin:14px auto;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:1.3rem;animation:spin 1s linear infinite;}
+.t-done{animation:none!important;border:3px solid var(--accent);}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* SURVEY */
+.sq{margin-bottom:16px;}
+.sq-q{font-size:.88rem;font-weight:600;margin-bottom:8px;}
+.sq-opt{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--card);border-radius:10px;margin-bottom:6px;cursor:pointer;font-size:.83rem;}
+.sq-opt input{accent-color:var(--accent);}
+
+/* TOAST */
+.toast{position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--accent);color:#000;padding:10px 22px;border-radius:20px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;z-index:500;transition:transform .4s;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* SPINNER */
+.spin-sm{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+
+/* WITHDRAW FORM */
+.wf-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;margin-bottom:12px;transition:border .2s;}
+.wf-input:focus{border-color:var(--accent);}
+.wf-sel{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;margin-bottom:12px;appearance:none;}
+
+/* PROFILE */
+.prof-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;text-align:center;margin-bottom:14px;}
+.prof-av{width:72px;height:72px;background:linear-gradient(135deg,var(--a2),var(--accent));border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:2rem;}
+.prof-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;}
+.prof-email{color:var(--muted);font-size:.82rem;margin-top:3px;}
+.logout-btn{width:100%;background:var(--a4);color:#fff;font-family:'Syne',sans-serif;font-weight:700;border:none;border-radius:13px;padding:13px;cursor:pointer;font-size:.9rem;margin-top:14px;transition:all .2s;}
+.logout-btn:hover{opacity:.85;}
+
+/* NO TASK */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-icon{font-size:2.5rem;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="ambient amb1"></div>
+<div class="ambient amb2"></div>
+
+<!-- ======= AUTH SCREEN ======= -->
+<div id="authScreen">
+  <div class="auth-logo">Earn<span>X</span> Pro</div>
+  <div class="auth-tagline">Kamao, Barhao, Nikalo – Har Din!</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuth('login')">Login</div>
+      <div class="auth-tab" onclick="switchAuth('register')">Register</div>
+    </div>
+    <div id="loginForm">
+      <div class="field"><label>Email</label><input type="email" id="loginEmail" placeholder="aap@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
+      <button class="btn-auth" onclick="doLogin()">🔐 Login Karein</button>
+    </div>
+    <div id="registerForm" style="display:none">
+      <div class="field"><label>Naam</label><input type="text" id="regName" placeholder="Aapka naam"/></div>
+      <div class="field"><label>Email</label><input type="email" id="regEmail" placeholder="aap@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="regPass" placeholder="Min 6 characters"/></div>
+      <div class="field"><label>Referral Code (Optional)</label><input type="text" id="regRef" placeholder="EARNX-XXXX"/></div>
+      <button class="btn-auth" onclick="doRegister()">🚀 Account Banao</button>
+    </div>
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ======= HEADER ======= -->
+<div class="header" id="mainHeader" style="display:none">
+  <div class="logo">Earn<span>X</span></div>
+  <div class="hdr-right">
+    <div class="bal-pill" onclick="showPage('wallet')">Rs <span id="hdrBal">0.00</span></div>
+    <div class="avatar-btn" onclick="showPage('profile')">👤</div>
+  </div>
+</div>
+
+<!-- ======= HOME PAGE ======= -->
+<div class="page" id="page-home">
+  <div class="hero">
+    <div class="hero-lbl">Total Earning</div>
+    <div class="hero-bal">Rs <span id="heroBal">0.00</span></div>
+    <div class="hero-sub">🔥 Aaj: Rs <span id="todayE">0.00</span> &nbsp;|&nbsp; ⏳ Pending: Rs <span id="pendE">0.00</span></div>
+    <div class="hero-btns">
+      <button class="btn-g" onclick="showPage('tasks')">🚀 Tasks</button>
+      <button class="btn-o" onclick="showPage('wallet')">💳 Wallet</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="sc"><div class="sc-v" id="statTasks">0</div><div class="sc-l">Tasks Done</div></div>
+    <div class="sc"><div class="sc-v" id="statRefs">0</div><div class="sc-l">Referrals</div></div>
+    <div class="sc"><div class="sc-v" id="statStreak">1🔥</div><div class="sc-l">Streak</div></div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-lbl"><span>Daily Goal</span><span id="progTxt">0 / 5</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="sec-title"><div class="dot" style="background:var(--accent)"></div>Hot Opportunities</div>
+  <div class="tabs">
+    <div class="tab active" onclick="filterHome('all',this)">Sab</div>
+    <div class="tab" onclick="filterHome('video',this)">📺 Videos</div>
+    <div class="tab" onclick="filterHome('subscribe',this)">🔔 Subscribe</div>
+    <div class="tab" onclick="filterHome('task',this)">✅ Tasks</div>
+    <div class="tab" onclick="filterHome('survey',this)">📋 Surveys</div>
+  </div>
+  <div class="tasks" id="homeTaskList"></div>
+
+  <div style="height:16px"></div>
+  <div class="sec-title"><div class="dot" style="background:var(--a2)"></div>Referral Bonus</div>
+  <div class="ref-box">
+    <div style="font-weight:600;font-size:.9rem;">👥 Dost ko invite karo → Rs 10 bonus!</div>
+    <div style="color:var(--muted);font-size:.78rem;margin-top:4px;">Har referral ki earning ka 10% hamesha milega</div>
+    <div class="ref-code">
+      <span id="refCodeDisp">EARNX-...</span>
+      <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+    </div>
+    <button class="btn-g" style="margin-top:12px;width:100%;padding:12px;" onclick="shareRef()">📤 Share Karein</button>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="sec-title"><div class="dot" style="background:var(--a5)"></div>AI Earning Assistant</div>
+  <div class="ai-box" style="margin:0 14px 16px;">
+    <div class="ai-hdr">
+      <div class="ai-av">🤖</div>
+      <div><div class="ai-name">EarnBot AI</div><div class="ai-st">● Online – Powered by Claude</div></div>
+    </div>
+    <div class="ai-msgs" id="aiMsgs">
+      <div class="msg bot">Assalam o Alaikum! 👋 Main EarnBot hoon. Earning tips, tasks ya withdrawal ke baare mein poochein!</div>
+    </div>
+    <div class="ai-inp-row">
+      <input class="ai-inp" id="aiInp" placeholder="Kuch poochein..." onkeypress="if(event.key==='Enter')sendAI()"/>
+      <button class="ai-send" onclick="sendAI()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======= TASKS PAGE ======= -->
+<div class="page" id="page-tasks">
+  <div style="padding:14px 0 0">
+    <div class="sec-title"><div class="dot" style="background:var(--accent)"></div>Sab Earning Tasks</div>
+  </div>
+  <div class="tasks" id="allTasksList"></div>
+  <div style="height:14px"></div>
+</div>
+
+<!-- ======= LEADERBOARD ======= -->
+<div class="page" id="page-leader">
+  <div style="padding:14px 0 0">
+    <div class="sec-title"><div class="dot" style="background:var(--gold)"></div>🏆 Top Earners</div>
+  </div>
+  <div class="lead-list" id="leaderList"></div>
+  <div style="height:14px"></div>
+</div>
+
+<!-- ======= WALLET PAGE ======= -->
+<div class="page" id="page-wallet">
+  <div class="wallet-pad">
+    <div class="hero" style="margin:0 0 14px">
+      <div class="hero-lbl">Available Balance</div>
+      <div class="hero-bal">Rs <span id="wBal">0.00</span></div>
+      <div class="hero-sub" id="wSub">Min withdrawal: Rs 50</div>
+      <div class="hero-btns" id="wBtns">
+        <button class="btn-g" onclick="openWithdraw('easypaisa')">📱 EasyPaisa</button>
+        <button class="btn-o" onclick="openWithdraw('jazzcash')">💜 JazzCash</button>
+      </div>
+    </div>
+
+    <!-- Withdraw Coming Soon or Open -->
+    <div id="wdSection"></div>
+
+    <div class="sec-title" style="padding-left:0"><div class="dot" style="background:var(--a3)"></div>Transactions</div>
+    <div id="txListEl"></div>
+  </div>
+</div>
+
+<!-- ======= PROFILE PAGE ======= -->
+<div class="page" id="page-profile">
+  <div class="wallet-pad">
+    <div class="prof-card">
+      <div class="prof-av">👤</div>
+      <div class="prof-name" id="profName">—</div>
+      <div class="prof-email" id="profEmail">—</div>
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="sc"><div class="sc-v" id="profBal">0</div><div class="sc-l">Balance (Rs)</div></div>
+        <div class="sc"><div class="sc-v" id="profTasks">0</div><div class="sc-l">Tasks Done</div></div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 Logout</button>
+    </div>
+    <div class="sec-title" style="padding-left:0"><div class="dot" style="background:var(--a2)"></div>Mera Referral</div>
+    <div class="ref-box" style="margin:0">
+      <div style="font-weight:600;font-size:.9rem;">Apna code share karo</div>
+      <div class="ref-code">
+        <span id="profRefCode">—</span>
+        <button class="copy-btn" onclick="copyRef()">📋 Copy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======= MODALS ======= -->
+
+<!-- VIDEO WATCH MODAL -->
+<div class="overlay" id="videoModal">
+  <div class="modal">
+    <div class="m-handle"></div>
+    <div class="m-title" id="vidTitle">📺 Video Dekho & Kamao</div>
+    <iframe class="yt-embed" id="ytFrame" src="" allowfullscreen allow="autoplay"></iframe>
+    <div class="ad-timer-box">
+      <div style="color:var(--muted);font-size:.82rem;">Video dekh rahe hain...</div>
+      <div class="t-circle" id="vidTimer">—</div>
+      <div style="color:var(--muted);font-size:.76rem;">Seconds baqi hain</div>
+    </div>
+    <button class="btn-g" id="claimVidBtn" disabled style="margin-top:14px;width:100%;opacity:.4" onclick="claimVideo()">⏳ Wait karein...</button>
+    <button class="btn-o" style="margin-top:8px;width:100%" onclick="closeModal('videoModal')">❌ Cancel</button>
+  </div>
+</div>
+
+<!-- SUBSCRIBE MODAL -->
+<div class="overlay" id="subModal">
+  <div class="modal">
+    <div class="m-handle"></div>
+    <div class="m-title" id="subTitle">🔔 Subscribe & Earn</div>
+    <div style="background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid var(--border);">
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:6px;">YouTube Channel:</div>
+      <div id="subChannelName" style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;"></div>
+      <div id="subChannelDesc" style="font-size:.8rem;color:var(--muted);margin-top:4px;"></div>
+    </div>
+    <a id="subChannelLink" href="#" target="_blank" class="btn-g" style="display:block;text-align:center;text-decoration:none;padding:13px;border-radius:13px;font-family:'Syne',sans-serif;font-weight:700;margin-bottom:10px;">▶ YouTube Pe Jao & Subscribe Karo</a>
+    <button class="btn-g" onclick="claimSubscribe()" style="width:100%">✅ Subscribe Kar Liya – Rs <span id="subReward">0</span> Claim</button>
+    <button class="btn-o" style="margin-top:8px;width:100%" onclick="closeModal('subModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- SURVEY MODAL -->
+<div class="overlay" id="surveyModal">
+  <div class="modal">
+    <div class="m-handle"></div>
+    <div class="m-title" id="surveyTitle">📋 Survey</div>
+    <div id="surveyQs"></div>
+    <button class="btn-g" style="width:100%;margin-top:6px" onclick="submitSurvey()">✅ Submit & Earn</button>
+    <button class="btn-o" style="margin-top:8px;width:100%" onclick="closeModal('surveyModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- WITHDRAW MODAL -->
+<div class="overlay" id="wdModal">
+  <div class="modal">
+    <div class="m-handle"></div>
+    <div class="m-title" id="wdTitle">💳 Withdrawal Request</div>
+    <div class="field">
+      <label style="color:var(--muted);font-size:.8rem;display:block;margin-bottom:6px;">Account Number</label>
+      <input class="wf-input" id="wdNum" placeholder="03XX-XXXXXXX"/>
+    </div>
+    <div class="field">
+      <label style="color:var(--muted);font-size:.8rem;display:block;margin-bottom:6px;">Amount (Rs)</label>
+      <input class="wf-input" id="wdAmt" type="number" placeholder="Min Rs 50"/>
+    </div>
+    <button class="btn-g" style="width:100%" onclick="submitWithdraw()">📤 Request Bhejein</button>
+    <button class="btn-o" style="margin-top:8px;width:100%" onclick="closeModal('wdModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav" id="mainNav" style="display:none">
+  <div class="ni active" onclick="showPage('home',this)"><div class="ni-icon">🏠</div><div class="ni-lbl">Home</div></div>
+  <div class="ni" onclick="showPage('tasks',this)"><div class="ni-icon">✅</div><div class="ni-lbl">Tasks</div></div>
+  <div class="ni" onclick="showPage('leader',this)"><div class="ni-icon">🏆</div><div class="ni-lbl">Leaders</div></div>
+  <div class="ni" onclick="showPage('wallet',this)"><div class="ni-icon">💳</div><div class="ni-lbl">Wallet</div></div>
+  <div class="ni" onclick="showPage('profile',this)"><div class="ni-icon">👤</div><div class="ni-lbl">Profile</div></div>
+</div>
+
+<!-- ======= FIREBASE + APP LOGIC ======= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, orderBy, limit, getDocs, onSnapshot, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+
+// ===== FIREBASE CONFIG – Apna config yahan paste karein =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBr_X6fSwLBhCiCgSLiPQpG0xLQLGlzxiM",
+  authDomain: "earnx-aac00.firebaseapp.com",
+  databaseURL: "https://earnx-aac00-default-rtdb.firebaseio.com",
+  projectId: "earnx-aac00",
+  storageBucket: "earnx-aac00.firebasestorage.app",
+  messagingSenderId: "449198718530",
+  appId: "1:449198718530:web:ea2f129b7c28cb17a1b7db",
+  measurementId: "G-Y60GQQD64D"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ===== GLOBAL STATE =====
+let currentUser = null;
+let userData = null;
+let allTasks = [];
+let completedToday = new Set();
+let withdrawOpen = false;
+let currentVideo = null;
+let currentSub = null;
+let currentSurvey = null;
+let vidInterval = null;
+
+// ===== AUTH SWITCH =====
+window.switchAuth = (tab) => {
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`.auth-tab:${tab==='login'?'first':'last'}-child`).classList.add('active');
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+  document.getElementById('authErr').textContent='';
+};
+
+// ===== REGISTER =====
+window.doRegister = async () => {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const refCode = document.getElementById('regRef').value.trim().toUpperCase();
+  if(!name||!email||!pass){setAuthErr('Sab fields bhariein!');return;}
+  if(pass.length<6){setAuthErr('Password min 6 characters!');return;}
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    const uid = cred.user.uid;
+    const myRef = 'EARNX-'+uid.substr(0,4).toUpperCase();
+    const udata = {
+      name, email, balance:0, pendingBalance:0, totalEarned:0,
+      tasksCompleted:0, referrals:0, streak:1, dailyTasks:0,
+      refCode: myRef, referredBy: refCode||null,
+      createdAt: serverTimestamp(), lastSeen: serverTimestamp()
+    };
+    await setDoc(doc(db,'users',uid), udata);
+    // bonus for referrer
+    if(refCode){
+      const rq = query(collection(db,'users'));
+      const snap = await getDocs(rq);
+      snap.forEach(async (d)=>{
+        if(d.data().refCode===refCode){
+          await updateDoc(doc(db,'users',d.id),{balance:increment(10),referrals:increment(1),totalEarned:increment(10)});
+          await addDoc(collection(db,'users',d.id,'transactions'),{label:'Referral Bonus',amount:10,type:'credit',createdAt:serverTimestamp()});
+        }
+      });
+    }
+  } catch(e){ setAuthErr(firebaseErr(e.code)); }
+};
+
+// ===== LOGIN =====
+window.doLogin = async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if(!email||!pass){setAuthErr('Email aur password daalein!');return;}
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e){ setAuthErr(firebaseErr(e.code)); }
+};
+
+// ===== LOGOUT =====
+window.doLogout = async () => {
+  await signOut(auth);
+};
+
+function firebaseErr(code){
+  const map={'auth/email-already-in-use':'Email pehle se registered hai!','auth/invalid-email':'Email sahi nahi!','auth/wrong-password':'Password galat hai!','auth/user-not-found':'Account nahi mila!','auth/weak-password':'Password aur mazboot karo!'};
+  return map[code]||'Kuch masla hua, dobara try karein.';
+}
+function setAuthErr(msg){document.getElementById('authErr').textContent=msg;}
+
+// ===== AUTH STATE =====
+onAuthStateChanged(auth, async (user) => {
+  if(user){
+    currentUser = user;
+    await loadUserData();
+    await loadTasks();
+    await loadSettings();
+    showApp();
+  } else {
+    currentUser = null;
+    userData = null;
+    hideApp();
+  }
+});
+
+async function loadUserData(){
+  const snap = await getDoc(doc(db,'users',currentUser.uid));
+  if(snap.exists()) userData = snap.data();
+  else userData = {balance:0,pendingBalance:0,totalEarned:0,tasksCompleted:0,referrals:0,streak:1,dailyTasks:0,refCode:'EARNX-????',name:'User',email:currentUser.email};
+  // check daily reset
+  const lastSeen = userData.lastSeen?.toDate?.()|| new Date(0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  if(lastSeen < today){
+    await updateDoc(doc(db,'users',currentUser.uid),{dailyTasks:0,lastSeen:serverTimestamp()});
+    userData.dailyTasks = 0;
+    completedToday.clear();
+  }
+  updateUI();
+}
+
+async function loadTasks(){
+  const snap = await getDocs(query(collection(db,'tasks'), orderBy('createdAt','desc')));
+  allTasks = snap.docs.map(d=>({id:d.id,...d.data()}));
+  // load static fallback if no tasks yet
+  if(allTasks.length===0) allTasks = getDefaultTasks();
+  renderTasks('homeTaskList','all');
+  renderTasks('allTasksList','all');
+}
+
+async function loadSettings(){
+  const snap = await getDoc(doc(db,'settings','global'));
+  if(snap.exists()){
+    withdrawOpen = snap.data().withdrawOpen || false;
+  }
+  renderWallet();
+}
+
+function getDefaultTasks(){
+  return [
+    {id:'d1',type:'task',icon:'⭐',color:'purple',name:'App Rate Karo',desc:'Play Store par 5 star dein',reward:10,time:'2 min',badge:'HOT',active:true},
+    {id:'d2',type:'survey',icon:'📋',color:'amber',name:'Quick Survey',desc:'5 sawaalon ka jawab dein',reward:8,time:'3 min',badge:'',active:true},
+    {id:'d3',type:'task',icon:'👍',color:'green',name:'Social Follow',desc:'Page ko like aur follow karo',reward:3,time:'1 min',badge:'EASY',active:true},
+    {id:'d4',type:'task',icon:'🔔',color:'blue',name:'Notification On',desc:'Push notifications enable karo',reward:5,time:'30 sec',badge:'',active:true},
+  ];
+}
+
+// ===== RENDER TASKS =====
+function renderTasks(containerId, filter){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  let list = allTasks.filter(t=>t.active!==false);
+  if(filter && filter!=='all') list = list.filter(t=>t.type===filter);
+  if(list.length===0){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div>Abhi koi task nahi</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(t=>{
+    const done = completedToday.has(t.id);
+    const badgeHtml = t.badge ? `<span class="badge ${t.badge==='HOT'?'hot':t.badge==='NEW'?'new':'easy'}">${t.badge}</span>` : '';
+    return `<div class="tc ${t.color||'green'} ${done?'done':''}" onclick="doTask('${t.id}')">
+      ${badgeHtml}
+      <div class="ti ${t.color||'green'}">${t.icon||'✅'}</div>
+      <div style="flex:1"><div class="tn">${t.name}</div><div class="td">${t.desc}</div></div>
+      <div><div class="tr">+Rs ${t.reward}</div><div class="tt">⏱ ${t.time||'—'}</div></div>
+    </div>`;
+  }).join('');
+}
+
+window.filterHome = (type, el) => {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks('homeTaskList', type);
+};
+
+// ===== DO TASK =====
+window.doTask = (id) => {
+  const task = allTasks.find(t=>t.id===id);
+  if(!task || completedToday.has(id)) return;
+  if(task.type==='video') { openVideoModal(task); return; }
+  if(task.type==='subscribe') { openSubModal(task); return; }
+  if(task.type==='survey') { openSurveyModal(task); return; }
+  // generic task
+  completedToday.add(id);
+  earnMoney(task.reward, task.name, 'credit');
+  showToast('💰 +Rs '+task.reward+' Kamaye!');
+  renderTasks('homeTaskList','all');
+  renderTasks('allTasksList','all');
+};
+
+// ===== VIDEO MODAL =====
+function openVideoModal(task){
+  currentVideo = task;
+  document.getElementById('vidTitle').textContent = '📺 '+task.name;
+  const ytId = extractYTId(task.videoUrl||'');
+  document.getElementById('ytFrame').src = ytId ? `https://www.youtube.com/embed/${ytId}?autoplay=1&controls=1` : '';
+  const secs = task.watchSeconds || 30;
+  let rem = secs;
+  const timerEl = document.getElementById('vidTimer');
+  const btn = document.getElementById('claimVidBtn');
+  timerEl.textContent = rem;
+  timerEl.classList.remove('t-done');
+  btn.disabled=true; btn.style.opacity='.4'; btn.textContent='⏳ Wait karein...';
+  openModal('videoModal');
+  if(vidInterval) clearInterval(vidInterval);
+  vidInterval = setInterval(()=>{
+    rem--;
+    timerEl.textContent = rem;
+    if(rem<=0){
+      clearInterval(vidInterval);
+      timerEl.classList.add('t-done');
+      timerEl.textContent='✓';
+      btn.disabled=false; btn.style.opacity='1';
+      btn.textContent=`🎉 Rs ${task.reward} Claim Karein!`;
+    }
+  },1000);
+}
+
+function extractYTId(url){
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+window.claimVideo = () => {
+  closeModal('videoModal');
+  if(vidInterval){clearInterval(vidInterval);vidInterval=null;}
+  document.getElementById('ytFrame').src='';
+  if(currentVideo && !completedToday.has(currentVideo.id)){
+    completedToday.add(currentVideo.id);
+    earnMoney(currentVideo.reward, currentVideo.name, 'credit');
+    showToast('🎉 +Rs '+currentVideo.reward+' Video reward!');
+    renderTasks('homeTaskList','all');
+    renderTasks('allTasksList','all');
+  }
+};
+
+// ===== SUBSCRIBE MODAL =====
+function openSubModal(task){
+  currentSub = task;
+  document.getElementById('subTitle').textContent = '🔔 '+task.name;
+  document.getElementById('subChannelName').textContent = task.channelName||'YouTube Channel';
+  document.getElementById('subChannelDesc').textContent = task.channelDesc||'Subscribe karein aur reward pao';
+  document.getElementById('subChannelLink').href = task.channelUrl||'https://youtube.com';
+  document.getElementById('subReward').textContent = task.reward;
+  openModal('subModal');
+}
+
+window.claimSubscribe = () => {
+  closeModal('subModal');
+  if(currentSub && !completedToday.has(currentSub.id)){
+    completedToday.add(currentSub.id);
+    earnMoney(currentSub.reward, currentSub.name, 'credit');
+    showToast('🔔 +Rs '+currentSub.reward+' Subscribe reward!');
+    renderTasks('homeTaskList','all');
+    renderTasks('allTasksList','all');
+  }
+};
+
+// ===== SURVEY MODAL =====
+const surveyQBank = [
+  {q:'Aap online shopping kahan karte hain?',opts:['Daraz','Amazon','Local','Social Media']},
+  {q:'Aapka phone brand?',opts:['Samsung','Vivo','Oppo','iPhone','Other']},
+  {q:'Roz kitna waqt phone pe?',opts:['1-2 ghanty','3-5 ghanty','5+ ghanty','Thoda sa']},
+  {q:'Earning ka maqsad?',opts:['Mobile topup','Shopping','Savings','Family']},
+  {q:'App kaisi lagi?',opts:['Zabardast!','Theek hai','Improve honi chahiye','Pehli baar']},
+  {q:'Internet speed kaisi hai?',opts:['Bohot fast','Theek','Slow','Bohot slow']},
+];
+function openSurveyModal(task){
+  currentSurvey = task;
+  document.getElementById('surveyTitle').textContent = task.name+' – Rs '+task.reward;
+  const qs = [...surveyQBank].sort(()=>Math.random()-.5).slice(0,3);
+  document.getElementById('surveyQs').innerHTML = qs.map((q,i)=>`
+    <div class="sq">
+      <div class="sq-q">${i+1}. ${q.q}</div>
+      ${q.opts.map(o=>`<label class="sq-opt"><input type="radio" name="sq${i}" value="${o}"> ${o}</label>`).join('')}
+    </div>`).join('');
+  openModal('surveyModal');
+}
+
+window.submitSurvey = () => {
+  closeModal('surveyModal');
+  if(currentSurvey && !completedToday.has(currentSurvey.id)){
+    completedToday.add(currentSurvey.id);
+    earnMoney(currentSurvey.reward, currentSurvey.name, 'credit');
+    showToast('📋 +Rs '+currentSurvey.reward+' Survey reward!');
+    renderTasks('homeTaskList','all');
+    renderTasks('allTasksList','all');
+  }
+};
+
+// ===== EARN MONEY =====
+async function earnMoney(amount, label, type){
+  if(!currentUser || !userData) return;
+  userData.balance = (userData.balance||0) + amount;
+  userData.totalEarned = (userData.totalEarned||0) + amount;
+  userData.tasksCompleted = (userData.tasksCompleted||0) + 1;
+  userData.dailyTasks = Math.min((userData.dailyTasks||0)+1, 5);
+  updateUI();
+  try {
+    await updateDoc(doc(db,'users',currentUser.uid),{
+      balance: increment(amount),
+      totalEarned: increment(amount),
+      tasksCompleted: increment(1),
+      dailyTasks: increment(1),
+      lastSeen: serverTimestamp()
+    });
+    await addDoc(collection(db,'users',currentUser.uid,'transactions'),{
+      label, amount, type, createdAt: serverTimestamp()
+    });
+    loadTxList();
+  } catch(e){ console.error(e); }
+}
+
+// ===== WALLET / WITHDRAW =====
+function renderWallet(){
+  const el = document.getElementById('wdSection');
+  if(withdrawOpen){
+    el.innerHTML='';
+    document.getElementById('wBtns').style.display='flex';
+  } else {
+    el.innerHTML=`<div class="cs-banner">
+      <div class="cs-icon">🔒</div>
+      <div>
+        <div class="cs-title">Withdrawal Coming Soon</div>
+        <div class="cs-sub">Admin jald hi withdraw feature open karega. Tab tak earn karte rahen!</div>
+      </div>
+    </div>`;
+    document.getElementById('wBtns').style.display='none';
+  }
+}
+
+window.openWithdraw = (method) => {
+  if(!withdrawOpen){ showToast('🔒 Withdraw abhi available nahi'); return; }
+  if((userData?.balance||0) < 50){ showToast('⚠️ Min Rs 50 chahiye'); return; }
+  document.getElementById('wdTitle').textContent = (method==='easypaisa'?'📱 EasyPaisa':'💜 JazzCash')+' Withdrawal';
+  openModal('wdModal');
+};
+
+window.submitWithdraw = async () => {
+  const num = document.getElementById('wdNum').value.trim();
+  const amt = parseFloat(document.getElementById('wdAmt').value);
+  if(!num){ showToast('Account number daalein!'); return; }
+  if(!amt || amt<50){ showToast('⚠️ Min Rs 50!'); return; }
+  if(amt > (userData?.balance||0)){ showToast('⚠️ Balance kam hai!'); return; }
+  closeModal('wdModal');
+  try {
+    await addDoc(collection(db,'withdrawals'),{
+      uid: currentUser.uid,
+      name: userData.name,
+      email: userData.email,
+      accountNumber: num,
+      amount: amt,
+      status:'pending',
+      createdAt: serverTimestamp()
+    });
+    await updateDoc(doc(db,'users',currentUser.uid),{
+      balance: increment(-amt),
+      pendingBalance: increment(amt)
+    });
+    await addDoc(collection(db,'users',currentUser.uid,'transactions'),{
+      label:'Withdrawal Request',amount:amt,type:'debit',createdAt:serverTimestamp()
+    });
+    userData.balance -= amt;
+    userData.pendingBalance = (userData.pendingBalance||0)+amt;
+    updateUI();
+    loadTxList();
+    showToast('✅ Withdrawal request bhej di!');
+  } catch(e){ showToast('Error: '+e.message); }
+};
+
+// ===== TRANSACTIONS =====
+async function loadTxList(){
+  if(!currentUser) return;
+  const snap = await getDocs(query(collection(db,'users',currentUser.uid,'transactions'),orderBy('createdAt','desc'),limit(20)));
+  const el = document.getElementById('txListEl');
+  if(snap.empty){ el.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div>Koi transaction nahi</div></div>'; return; }
+  el.innerHTML = snap.docs.map(d=>{
+    const t=d.data();
+    const isPlus=t.type==='credit';
+    return `<div class="tx-item">
+      <div><div class="tx-lbl">${t.label||'—'}</div><div class="tx-time">${t.createdAt?.toDate?.().toLocaleDateString('ur-PK')||'—'}</div></div>
+      <div class="tx-amt ${isPlus?'plus':'minus'}">${isPlus?'+':'-'}Rs ${t.amount||0}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== LEADERBOARD =====
+async function loadLeaderboard(){
+  const snap = await getDocs(query(collection(db,'users'),orderBy('totalEarned','desc'),limit(10)));
+  const leaders = snap.docs.map((d,i)=>({rank:i+1,...d.data()}));
+  const el = document.getElementById('leaderList');
+  el.innerHTML = leaders.map(l=>{
+    const rankCls = l.rank===1?'g':l.rank===2?'s':l.rank===3?'b':'';
+    const emojis=['👑','💎','🥉','🌟','⚡','🔥','💫','🎯','🏅','✨'];
+    return `<div class="li">
+      <div class="rk ${rankCls}">${l.rank}</div>
+      <div class="lav">${emojis[l.rank-1]||'👤'}</div>
+      <div class="ln">${l.name||'User'}</div>
+      <div class="le">Rs ${Math.floor(l.totalEarned||0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== UPDATE UI =====
+function updateUI(){
+  const b = (userData?.balance||0).toFixed(2);
+  const t = (userData?.totalEarned||0).toFixed(2);
+  const p = (userData?.pendingBalance||0).toFixed(2);
+  const daily = userData?.dailyTasks||0;
+  document.getElementById('hdrBal').textContent = b;
+  document.getElementById('heroBal').textContent = t;
+  document.getElementById('wBal').textContent = b;
+  document.getElementById('todayE').textContent = '—';
+  document.getElementById('pendE').textContent = p;
+  document.getElementById('statTasks').textContent = userData?.tasksCompleted||0;
+  document.getElementById('statRefs').textContent = userData?.referrals||0;
+  document.getElementById('statStreak').textContent = (userData?.streak||1)+'🔥';
+  document.getElementById('progTxt').textContent = daily+' / 5';
+  document.getElementById('progFill').style.width = (daily/5*100)+'%';
+  document.getElementById('refCodeDisp').textContent = userData?.refCode||'—';
+  document.getElementById('profRefCode').textContent = userData?.refCode||'—';
+  document.getElementById('profName').textContent = userData?.name||'User';
+  document.getElementById('profEmail').textContent = userData?.email||currentUser?.email||'—';
+  document.getElementById('profBal').textContent = parseFloat(b).toFixed(0);
+  document.getElementById('profTasks').textContent = userData?.tasksCompleted||0;
+}
+
+// ===== REFERRAL =====
+window.copyRef = () => {
+  const code = userData?.refCode||'EARNX-????';
+  navigator.clipboard?.writeText?.('EarnX Pro join karo aur Rs 10 pao! Code: '+code).then(()=>showToast('📋 Code copy ho gaya!'));
+};
+window.shareRef = () => {
+  const code = userData?.refCode||'';
+  if(navigator.share) navigator.share({title:'EarnX Pro',text:'Mere saath join karo aur Rs 10 bonus pao! Code: '+code,url:'https://earnxpro.app?ref='+code});
+  else copyRef();
+};
+
+// ===== AI CHAT =====
+window.sendAI = async () => {
+  const inp = document.getElementById('aiInp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value='';
+  addAIMsg(msg,'user');
+  const loading = addAIMsg('<span class="spin-sm"></span> Soch raha hoon...','bot');
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`Aap EarnX Pro ka AI assistant ho – naam EarnBot.
+Roman Urdu mein jawab dein (jis tarah user likhe).
+App features: Video watch (Rs 5-20), YouTube subscribe (Rs 10-30), Tasks (Rs 3-15), Surveys (Rs 8-12).
+Withdrawal: EasyPaisa/JazzCash – min Rs 50. Referral: Rs 10 per invite + 10% lifetime.
+Chote, friendly, helpful answers dein. Max 3-4 lines.`,
+        messages:[{role:'user',content:msg}]
+      })
+    });
+    const data = await res.json();
+    loading.remove();
+    addAIMsg(data.content?.[0]?.text||'Maafi, dobara try karein!','bot');
+  }catch(e){loading.remove();addAIMsg('🔌 Connection issue, retry karein!','bot');}
+};
+function addAIMsg(text,cls){
+  const box=document.getElementById('aiMsgs');
+  const d=document.createElement('div');
+  d.className='msg '+cls;
+  d.innerHTML=text;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+  return d;
+}
+
+// ===== PAGES =====
+window.showPage = (page, navEl) => {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  if(page==='leader') loadLeaderboard();
+  if(page==='wallet'){ loadTxList(); renderWallet(); }
+};
+
+// ===== MODALS =====
+window.openModal = (id) => document.getElementById(id)?.classList.add('show');
+window.closeModal = (id) => {
+  document.getElementById(id)?.classList.remove('show');
+  if(id==='videoModal'){
+    if(vidInterval){clearInterval(vidInterval);vidInterval=null;}
+    document.getElementById('ytFrame').src='';
+  }
+};
+// close on overlay click
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('show'); });
+});
+
+// ===== TOAST =====
+window.showToast = (msg) => {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+};
+
+// ===== SHOW/HIDE APP =====
+function showApp(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('mainHeader').style.display='flex';
+  document.getElementById('mainNav').style.display='flex';
+  document.getElementById('page-home').classList.add('active');
+  loadTxList();
+}
+function hideApp(){
+  document.getElementById('authScreen').style.display='flex';
+  document.getElementById('mainHeader').style.display='none';
+  document.getElementById('mainNav').style.display='none';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+}
+</script>
+</body>
+</html>

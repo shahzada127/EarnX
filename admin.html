@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EarnX Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07070f;--surface:#0f0f1c;--card:#161624;--border:#232338;--accent:#f59e0b;--a2:#7c3aed;--a3:#00ff88;--a4:#ef4444;--a5:#0ea5e9;--text:#eeeeff;--muted:#6b6b99;--gold:#fbbf24;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;}#mainArea{display:none;}#sidebar{display:none;}
+.sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50;transition:transform .3s;}
+.sidebar.hidden{transform:translateX(-230px);}
+.sb-logo{padding:22px 18px;border-bottom:1px solid var(--border);}
+.sb-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;}
+.sb-logo-text span{color:var(--accent);}
+.sb-role{font-size:.68rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.08em;}
+.sb-nav{padding:14px 10px;flex:1;overflow-y:auto;}
+.sb-sec{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:8px 8px 4px;margin-top:8px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:10px 11px;border-radius:11px;cursor:pointer;font-size:.85rem;color:var(--muted);transition:all .2s;margin-bottom:2px;}
+.sb-item:hover{background:var(--card);color:var(--text);}
+.sb-item.active{background:rgba(245,158,11,.12);color:var(--accent);font-weight:600;}
+.sb-bottom{padding:14px;border-top:1px solid var(--border);}
+.logout-sb{width:100%;background:rgba(239,68,68,.1);color:var(--a4);border:1px solid rgba(239,68,68,.2);border-radius:9px;padding:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:600;}
+.main{margin-left:230px;flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin .3s;}
+.topbar{background:rgba(7,7,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.topbar-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;}
+.admin-badge{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.25);color:var(--accent);border-radius:20px;padding:5px 13px;font-size:.75rem;font-weight:600;}
+.menu-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--text);font-size:1rem;display:none;}
+.content{padding:22px;flex:1;}
+
+/* AUTH */
+#adminAuth{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;}
+.auth-wrap{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:34px;width:100%;max-width:360px;text-align:center;}
+.al{font-family:'Syne',sans-serif;font-weight:800;font-size:1.9rem;margin-bottom:4px;}
+.al span{color:var(--accent);}
+.as{color:var(--muted);font-size:.82rem;margin-bottom:24px;}
+.af{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;margin-bottom:11px;transition:border .2s;}
+.af:focus{border-color:var(--accent);}
+.btn-login{width:100%;background:var(--accent);color:#000;font-family:'Syne',sans-serif;font-weight:700;border:none;border-radius:12px;padding:13px;font-size:.92rem;cursor:pointer;}
+.aerr{color:var(--a4);font-size:.78rem;margin-top:8px;min-height:16px;}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;}
+.stat-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;}
+.stat-box.yellow .stat-val{color:var(--accent);}
+.stat-box.purple .stat-val{color:var(--a2);}
+.stat-box.green .stat-val{color:var(--a3);}
+.stat-box.red .stat-val{color:var(--a4);}
+.stat-box.blue .stat-val{color:var(--a5);}
+
+/* CARDS */
+.sec-card{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:18px;overflow:hidden;}
+.sec-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;}
+.sec-body{padding:18px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:9px 13px;border-bottom:1px solid var(--border);}
+.tbl td{padding:11px 13px;border-bottom:1px solid rgba(35,35,56,.5);font-size:.83rem;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.tbl-empty{text-align:center;padding:28px;color:var(--muted);font-size:.83rem;}
+.chip{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.chip.green{background:rgba(0,255,136,.12);color:var(--a3);}
+.chip.red{background:rgba(239,68,68,.12);color:var(--a4);}
+.chip.amber{background:rgba(245,158,11,.12);color:var(--accent);}
+.chip.blue{background:rgba(14,165,233,.12);color:var(--a5);}
+.chip.purple{background:rgba(124,58,237,.12);color:var(--a2);}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg.one{grid-template-columns:1fr;}
+.fld{display:flex;flex-direction:column;gap:5px;}
+.fld label{font-size:.76rem;color:var(--muted);font-weight:500;}
+.fld input,.fld select,.fld textarea{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;transition:border .2s;}
+.fld input:focus,.fld select:focus{border-color:var(--accent);}
+.fld select option{background:var(--surface);}
+
+/* BUTTONS */
+.btn{border:none;border-radius:10px;padding:9px 18px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;}
+.btn-p{background:var(--accent);color:#000;}
+.btn-p:hover{opacity:.9;}
+.btn-d{background:rgba(239,68,68,.12);color:var(--a4);border:1px solid rgba(239,68,68,.2);}
+.btn-d:hover{background:rgba(239,68,68,.22);}
+.btn-pu{background:rgba(124,58,237,.12);color:var(--a2);border:1px solid rgba(124,58,237,.2);}
+.btn-sm{padding:5px 12px;font-size:.76rem;}
+.btn-grp{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+
+/* TOGGLE */
+.tog-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px 16px;margin-bottom:10px;}
+.tog-title{font-weight:600;font-size:.88rem;}
+.tog-sub{color:var(--muted);font-size:.75rem;margin-top:2px;}
+.switch{position:relative;width:46px;height:24px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:var(--border);border-radius:24px;cursor:pointer;transition:.3s;}
+.slider:before{position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s;}
+input:checked+.slider{background:var(--accent);}
+input:checked+.slider:before{transform:translateX(22px);}
+
+/* TOAST */
+.toast{position:fixed;top:18px;right:18px;background:var(--accent);color:#000;padding:9px 20px;border-radius:13px;font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;z-index:999;transform:translateY(-70px);transition:transform .4s;pointer-events:none;}
+.toast.show{transform:translateY(0);}
+.toast.err{background:var(--a4);color:#fff;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-230px);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .menu-btn{display:block;}
+  .fg{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ADMIN AUTH -->
+<div id="adminAuth">
+  <div class="auth-wrap">
+    <div style="font-size:2.5rem;margin-bottom:12px;">🛡️</div>
+    <div class="al">Earn<span>X</span> Admin</div>
+    <div class="as">Sirf Admin Access</div>
+    <input class="af" type="text" id="aUser" placeholder="Username"/>
+    <input class="af" type="password" id="aPass" placeholder="Password"/>
+    <button class="btn-login" onclick="adminLogin()">🔐 Login</button>
+    <div class="aerr" id="aErr"></div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-text">Earn<span>X</span> Admin</div>
+    <div class="sb-role">Super Admin Panel</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Overview</div>
+    <div class="sb-item active" onclick="showPanel('dashboard',this)">📊 Dashboard</div>
+    <div class="sb-item" onclick="showPanel('users',this)">👥 Users</div>
+    <div class="sb-sec">Content</div>
+    <div class="sb-item" onclick="showPanel('videos',this)">📺 Video Tasks</div>
+    <div class="sb-item" onclick="showPanel('channels',this)">🔔 Channel Tasks</div>
+    <div class="sb-sec">Settings</div>
+    <div class="sb-item" onclick="showPanel('settings',this)">⚙️ Settings</div>
+    <div class="sb-item" onclick="showPanel('withdraw',this)">💳 Withdrawal</div>
+  </nav>
+  <div class="sb-bottom">
+    <button class="logout-sb" onclick="adminLogout()">🚪 Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainArea">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div class="topbar-title" id="topTitle">📊 Dashboard</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="admin-badge">🛡️ Admin</div>
+      <div id="clock" style="color:var(--muted);font-size:.78rem;"></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-box yellow"><div class="stat-label">Total Users</div><div class="stat-val" id="ds-users">—</div></div>
+        <div class="stat-box purple"><div class="stat-label">Total Coins Earned</div><div class="stat-val" id="ds-coins">—</div></div>
+        <div class="stat-box green"><div class="stat-label">Active Tasks</div><div class="stat-val" id="ds-tasks">—</div></div>
+        <div class="stat-box blue"><div class="stat-label">Coin Rate</div><div class="stat-val" id="ds-rate">—</div></div>
+      </div>
+
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">👥 Recent Users</div><button class="btn btn-p btn-sm" onclick="loadUsers()">🔄 Refresh</button></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Naam</th><th>Email</th><th>Coins</th><th>Tasks</th></tr></thead>
+            <tbody id="dashUsers"><tr><td colspan="4" class="tbl-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">📺 Recent Tasks</div></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Task</th><th>Type</th><th>Coins</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="dashTasks"><tr><td colspan="5" class="tbl-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="panel" id="panel-users">
+      <div class="sec-card">
+        <div class="sec-hdr">
+          <div class="sec-title">👥 Sab Users</div>
+          <input id="uSearch" placeholder="Search..." style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:7px 11px;color:var(--text);font-size:.8rem;outline:none;width:180px;" oninput="filterUsers()"/>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Naam</th><th>Email</th><th>Coins</th><th>Total</th><th>Tasks</th><th>Action</th></tr></thead>
+            <tbody id="usersTable"><tr><td colspan="6" class="tbl-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEO TASKS -->
+    <div class="panel" id="panel-videos">
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">📺 Naya Video Task Add Karein</div></div>
+        <div class="sec-body">
+          <div class="fg">
+            <div class="fld"><label>Video Title</label><input id="v-name" placeholder="e.g. Tech Tutorial Dekho"/></div>
+            <div class="fld"><label>YouTube / Video URL</label><input id="v-url" placeholder="https://youtube.com/watch?v=..." oninput="previewVid()"/></div>
+            <div class="fld"><label>Coins (default: 10)</label><input id="v-coins" type="number" placeholder="10"/></div>
+            <div class="fld"><label>Description</label><input id="v-desc" placeholder="Video ke baare mein"/></div>
+            <div class="fld"><label>Icon (Emoji)</label><input id="v-icon" placeholder="📺" maxlength="4"/></div>
+            <div class="fld"><label>Badge</label>
+              <select id="v-badge"><option value="">None</option><option value="HOT">🔥 HOT</option><option value="NEW">✨ NEW</option></select>
+            </div>
+          </div>
+          <div id="vidPrev" style="display:none;margin-top:12px;">
+            <div style="font-size:.75rem;color:var(--muted);margin-bottom:6px;">Preview:</div>
+            <iframe id="vidFrame" style="width:100%;aspect-ratio:16/9;border-radius:11px;border:none;background:#000;"></iframe>
+          </div>
+          <div class="btn-grp">
+            <button class="btn btn-p" onclick="addVideoTask()">📺 Add Video Task</button>
+            <button class="btn btn-pu" onclick="loadAllTasks()">🔄 Refresh List</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">📺 Video Tasks List</div></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Title</th><th>URL</th><th>Coins</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="videoTable"><tr><td colspan="5" class="tbl-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNEL TASKS -->
+    <div class="panel" id="panel-channels">
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">🔔 Naya Channel Subscribe Task</div></div>
+        <div class="sec-body">
+          <div class="fg">
+            <div class="fld"><label>Task Title</label><input id="c-name" placeholder="e.g. TechWithAli Subscribe Karo"/></div>
+            <div class="fld"><label>Channel URL</label><input id="c-url" placeholder="https://youtube.com/@channel"/></div>
+            <div class="fld"><label>Coins (default: 10)</label><input id="c-coins" type="number" placeholder="10"/></div>
+            <div class="fld"><label>Channel Description</label><input id="c-desc" placeholder="Channel ke baare mein"/></div>
+            <div class="fld"><label>Icon (Emoji)</label><input id="c-icon" placeholder="🔔" maxlength="4"/></div>
+            <div class="fld"><label>Badge</label>
+              <select id="c-badge"><option value="">None</option><option value="HOT">🔥 HOT</option><option value="NEW">✨ NEW</option></select>
+            </div>
+          </div>
+          <div class="btn-grp">
+            <button class="btn btn-p" onclick="addChannelTask()">🔔 Add Channel Task</button>
+            <button class="btn btn-pu" onclick="loadAllTasks()">🔄 Refresh List</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">🔔 Channel Tasks List</div></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>Title</th><th>URL</th><th>Coins</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="channelTable"><tr><td colspan="5" class="tbl-empty">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">⚙️ Coin Settings</div></div>
+        <div class="sec-body">
+          <div class="fg">
+            <div class="fld"><label>🪙 1 Coin = Rs (Rate)</label><input id="s-rate" type="number" step="0.01" placeholder="0.10"/></div>
+            <div class="fld"><label>📺 Coins per Video Task</label><input id="s-video" type="number" placeholder="10"/></div>
+            <div class="fld"><label>🔔 Coins per Channel Task</label><input id="s-channel" type="number" placeholder="10"/></div>
+            <div class="fld"><label>👥 Referral Bonus Coins</label><input id="s-ref" type="number" placeholder="50"/></div>
+          </div>
+          <div class="tog-row" style="margin-top:16px;">
+            <div><div class="tog-title">🤖 AI Assistant</div><div class="tog-sub">Users ke liye EarnBot enable</div></div>
+            <label class="switch"><input type="checkbox" id="s-ai" checked onchange="saveSettings()"/><span class="slider"></span></label>
+          </div>
+          <button class="btn btn-p" style="margin-top:6px;" onclick="saveSettings()">💾 Settings Save</button>
+        </div>
+      </div>
+
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">🔐 Admin Password Change</div></div>
+        <div class="sec-body">
+          <div class="fg one">
+            <div class="fld"><label>Purana Password</label><input type="password" id="oldP" placeholder="••••••"/></div>
+            <div class="fld"><label>Naya Password</label><input type="password" id="newP" placeholder="••••••"/></div>
+            <div class="fld"><label>Confirm</label><input type="password" id="conP" placeholder="••••••"/></div>
+          </div>
+          <button class="btn btn-pu" style="margin-top:12px;" onclick="changePass()">🔐 Password Change</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WITHDRAWAL -->
+    <div class="panel" id="panel-withdraw">
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">💳 Withdrawal Control</div></div>
+        <div class="sec-body">
+          <div style="background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(124,58,237,.06));border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:22px;text-align:center;margin-bottom:16px;">
+            <div style="color:var(--muted);font-size:.83rem;margin-bottom:8px;">Withdrawal System Status</div>
+            <div id="wdStatusBig" style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;margin-bottom:14px;">Loading...</div>
+            <button class="btn" id="wdToggleBtn" onclick="toggleWithdraw()" style="padding:12px 36px;font-size:.92rem;border-radius:12px;">...</button>
+          </div>
+          <div style="color:var(--muted);font-size:.78rem;text-align:center;">Toggle se sab users ke liye withdraw enable/disable hoga</div>
+        </div>
+      </div>
+
+      <div class="sec-card">
+        <div class="sec-hdr"><div class="sec-title">📋 Withdrawal Requests</div></div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr><th>User</th><th>Coins</th><th>Rs</th><th>Account</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="wdTable"><tr><td colspan="7" class="tbl-empty">Koi request nahi</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, addDoc, updateDoc, deleteDoc, collection, query, orderBy, limit, where, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBr_X6fSwLBhCiCgSLiPQpG0xLQLGlzxiM",
+  authDomain: "earnx-aac00.firebaseapp.com",
+  databaseURL: "https://earnx-aac00-default-rtdb.firebaseio.com",
+  projectId: "earnx-aac00",
+  storageBucket: "earnx-aac00.firebasestorage.app",
+  messagingSenderId: "449198718530",
+  appId: "1:449198718530:web:ea2f129b7c28cb17a1b7db",
+  measurementId: "G-Y60GQQD64D"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ADMIN CREDS
+let ADMIN = {user:'admin', pass:'EarnX@Admin2024'};
+let passOverride = null;
+let settings = {coinRate:0.10, coinsPerVideo:10, coinsPerChannel:10, refBonus:50, withdrawOpen:false, aiEnabled:true};
+let allUsersCache = [];
+let isLoggedIn = false;
+
+window.adminLogin = () => {
+  const u=document.getElementById('aUser').value.trim();
+  const p=document.getElementById('aPass').value;
+  const valid=passOverride||ADMIN.pass;
+  if(u===ADMIN.user && p===valid){
+    isLoggedIn=true;
+    document.getElementById('adminAuth').style.display='none';document.getElementById('mainArea').style.display='flex';document.getElementById('sidebar').style.display='flex';
+    init();
+  } else {
+    document.getElementById('aErr').textContent='❌ Galat username ya password!';
+  }
+};
+window.adminLogout = () => {
+  isLoggedIn=false;
+  document.getElementById('adminAuth').style.display='flex';
+  document.getElementById('aUser').value='';
+  document.getElementById('aPass').value='';
+};
+window.changePass = () => {
+  const o=document.getElementById('oldP').value, n=document.getElementById('newP').value, c=document.getElementById('conP').value;
+  if(o!==(passOverride||ADMIN.pass)){showToast('❌ Purana password galat!','err');return;}
+  if(n!==c){showToast('❌ Passwords match nahi!','err');return;}
+  if(n.length<6){showToast('❌ Min 6 chars!','err');return;}
+  passOverride=n; showToast('✅ Password changed!');
+};
+
+async function init(){
+  await loadSettings();
+  await loadDashboard();
+  setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString();},1000);
+}
+
+async function loadSettings(){
+  try{
+    const s=await getDoc(doc(db,'settings','global'));
+    if(s.exists()) settings={...settings,...s.data()};
+    applySettingsUI();
+  }catch(e){}
+}
+function applySettingsUI(){
+  const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v;};
+  sv('s-rate',settings.coinRate||0.10);
+  sv('s-video',settings.coinsPerVideo||10);
+  sv('s-channel',settings.coinsPerChannel||10);
+  sv('s-ref',settings.refBonus||50);
+  const ai=document.getElementById('s-ai');if(ai)ai.checked=settings.aiEnabled!==false;
+  updateWdUI(settings.withdrawOpen||false);
+  document.getElementById('ds-rate').textContent='Rs '+(settings.coinRate||0.10);
+}
+
+window.saveSettings = async () => {
+  settings.coinRate=parseFloat(document.getElementById('s-rate').value)||0.10;
+  settings.coinsPerVideo=parseInt(document.getElementById('s-video').value)||10;
+  settings.coinsPerChannel=parseInt(document.getElementById('s-channel').value)||10;
+  settings.refBonus=parseInt(document.getElementById('s-ref').value)||50;
+  settings.aiEnabled=document.getElementById('s-ai').checked;
+  try{await setDoc(doc(db,'settings','global'),settings,{merge:true});showToast('✅ Settings saved!');}
+  catch(e){showToast('❌ '+e.message,'err');}
+};
+
+// WITHDRAW TOGGLE
+function updateWdUI(open){
+  const sb=document.getElementById('wdStatusBig'), btn=document.getElementById('wdToggleBtn');
+  if(open){
+    if(sb){sb.textContent='✅ OPEN';sb.style.color='var(--a3)';}
+    if(btn){btn.textContent='🔒 Band Karein';btn.className='btn btn-d';btn.style.padding='12px 36px';btn.style.fontSize='.92rem';btn.style.borderRadius='12px';}
+  }else{
+    if(sb){sb.textContent='🔒 CLOSED';sb.style.color='var(--a4)';}
+    if(btn){btn.textContent='✅ Khol Dein';btn.className='btn btn-p';btn.style.padding='12px 36px';btn.style.fontSize='.92rem';btn.style.borderRadius='12px';}
+  }
+}
+window.toggleWithdraw = async () => {
+  settings.withdrawOpen=!settings.withdrawOpen;
+  try{await setDoc(doc(db,'settings','global'),settings,{merge:true});updateWdUI(settings.withdrawOpen);showToast(settings.withdrawOpen?'✅ Withdrawal OPEN!':'🔒 Withdrawal CLOSED!');}
+  catch(e){showToast('❌ '+e.message,'err');}
+};
+
+// DASHBOARD
+async function loadDashboard(){
+  try{
+    const [us,ts]=await Promise.all([getDocs(collection(db,'users')),getDocs(query(collection(db,'tasks'),where('active','==',true)))]);
+    const users=us.docs.map(d=>d.data());
+    const totalCoins=users.reduce((s,u)=>s+(u.totalCoins||0),0);
+    document.getElementById('ds-users').textContent=users.length;
+    document.getElementById('ds-coins').textContent=totalCoins;
+    document.getElementById('ds-tasks').textContent=ts.size;
+    document.getElementById('dashUsers').innerHTML=us.docs.slice(0,6).map(d=>{const u=d.data();return`<tr><td><strong>${u.name||'—'}</strong></td><td style="color:var(--muted);font-size:.78rem">${u.email||''}</td><td><span class="chip amber">🪙 ${u.coins||0}</span></td><td>${u.tasksCompleted||0}</td></tr>`;}).join('')||'<tr><td colspan="4" class="tbl-empty">Koi user nahi</td></tr>';
+    const allTasks=await getDocs(query(collection(db,'tasks'),orderBy('createdAt','desc'),limit(6)));
+    document.getElementById('dashTasks').innerHTML=allTasks.docs.map(d=>{const t=d.data();return`<tr><td><strong>${t.name}</strong></td><td><span class="chip ${t.type==='video'?'blue':'purple'}">${t.type}</span></td><td><span class="chip amber">🪙 ${t.coins||10}</span></td><td><span class="chip ${t.active?'green':'red'}">${t.active?'Active':'Off'}</span></td><td><button class="btn btn-sm ${t.active?'btn-d':'btn-p'}" onclick="toggleTask('${d.id}',${!t.active})">${t.active?'🔒':'✅'}</button></td></tr>`;}).join('')||'<tr><td colspan="5" class="tbl-empty">Koi task nahi</td></tr>';
+  }catch(e){console.error(e);}
+}
+
+// USERS
+window.loadUsers = async () => {
+  try{const s=await getDocs(query(collection(db,'users'),orderBy('totalCoins','desc')));allUsersCache=s.docs.map(d=>({id:d.id,...d.data()}));renderUsers(allUsersCache);}catch(e){}
+};
+function renderUsers(users){
+  document.getElementById('usersTable').innerHTML=users.map(u=>`<tr><td><strong>${u.name||'—'}</strong></td><td style="color:var(--muted);font-size:.78rem">${u.email||''}</td><td><span class="chip amber">🪙 ${u.coins||0}</span></td><td>${u.totalCoins||0}</td><td>${u.tasksCompleted||0}</td><td><button class="btn btn-pu btn-sm" onclick="addCoinsToUser('${u.id}','${u.name||u.email}')">🪙 Add</button></td></tr>`).join('')||'<tr><td colspan="6" class="tbl-empty">Koi user nahi</td></tr>';
+}
+window.filterUsers=()=>{const q=document.getElementById('uSearch').value.toLowerCase();renderUsers(allUsersCache.filter(u=>(u.name||'').toLowerCase().includes(q)||(u.email||'').toLowerCase().includes(q)));};
+window.addCoinsToUser=async(uid,name)=>{
+  const c=parseInt(prompt(`${name} ko kitne coins dein?`)||0);
+  if(!c||c<=0) return;
+  try{await updateDoc(doc(db,'users',uid),{coins:increment(c),totalCoins:increment(c)});await addDoc(collection(db,'users',uid,'transactions'),{label:'Admin Bonus 🎁',coins:c,createdAt:serverTimestamp()});showToast('✅ '+c+' coins diye!');loadUsers();}
+  catch(e){showToast('❌ '+e.message,'err');}
+};
+
+// VIDEO TASKS
+function extractYTId(url){const m=url.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:(url.length===11?url:null);}
+window.previewVid=()=>{const url=document.getElementById('v-url').value;const id=extractYTId(url);if(id){document.getElementById('vidFrame').src=`https://www.youtube.com/embed/${id}`;document.getElementById('vidPrev').style.display='block';}};
+
+window.addVideoTask = async () => {
+  const name=document.getElementById('v-name').value.trim();
+  const url=document.getElementById('v-url').value.trim();
+  const coins=parseInt(document.getElementById('v-coins').value)||settings.coinsPerVideo||10;
+  const desc=document.getElementById('v-desc').value.trim();
+  const icon=document.getElementById('v-icon').value.trim()||'📺';
+  const badge=document.getElementById('v-badge').value;
+  if(!name||!url){showToast('❌ Title aur URL zaruri!','err');return;}
+  try{
+    await addDoc(collection(db,'tasks'),{name,type:'video',url,coins,desc,icon,badge,active:true,createdAt:serverTimestamp()});
+    showToast('📺 Video task add ho gaya!');
+    ['v-name','v-url','v-coins','v-desc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('vidPrev').style.display='none';
+    loadAllTasks();
+  }catch(e){showToast('❌ '+e.message,'err');}
+};
+
+window.addChannelTask = async () => {
+  const name=document.getElementById('c-name').value.trim();
+  const url=document.getElementById('c-url').value.trim();
+  const coins=parseInt(document.getElementById('c-coins').value)||settings.coinsPerChannel||10;
+  const desc=document.getElementById('c-desc').value.trim();
+  const icon=document.getElementById('c-icon').value.trim()||'🔔';
+  const badge=document.getElementById('c-badge').value;
+  if(!name||!url){showToast('❌ Title aur URL zaruri!','err');return;}
+  try{
+    await addDoc(collection(db,'tasks'),{name,type:'channel',url,coins,desc,icon,badge,active:true,createdAt:serverTimestamp()});
+    showToast('🔔 Channel task add ho gaya!');
+    ['c-name','c-url','c-coins','c-desc'].forEach(id=>document.getElementById(id).value='');
+    loadAllTasks();
+  }catch(e){showToast('❌ '+e.message,'err');}
+};
+
+window.loadAllTasks = async () => {
+  try{
+    const s=await getDocs(query(collection(db,'tasks'),orderBy('createdAt','desc')));
+    const all=s.docs.map(d=>({id:d.id,...d.data()}));
+    const vids=all.filter(t=>t.type==='video');
+    const chs=all.filter(t=>t.type==='channel');
+    document.getElementById('videoTable').innerHTML=vids.map(t=>`<tr><td><strong>${t.name}</strong></td><td><a href="${t.url}" target="_blank" style="color:var(--a5);font-size:.78rem">Link</a></td><td><span class="chip amber">🪙 ${t.coins||10}</span></td><td><span class="chip ${t.active?'green':'red'}">${t.active?'Active':'Off'}</span></td><td style="display:flex;gap:6px;"><button class="btn btn-sm ${t.active?'btn-d':'btn-p'}" onclick="toggleTask('${t.id}',${!t.active})">${t.active?'🔒':'✅'}</button><button class="btn btn-d btn-sm" onclick="deleteTask('${t.id}')">🗑️</button></td></tr>`).join('')||'<tr><td colspan="5" class="tbl-empty">Koi video task nahi</td></tr>';
+    document.getElementById('channelTable').innerHTML=chs.map(t=>`<tr><td><strong>${t.name}</strong></td><td><a href="${t.url}" target="_blank" style="color:var(--a5);font-size:.78rem">Link</a></td><td><span class="chip amber">🪙 ${t.coins||10}</span></td><td><span class="chip ${t.active?'green':'red'}">${t.active?'Active':'Off'}</span></td><td style="display:flex;gap:6px;"><button class="btn btn-sm ${t.active?'btn-d':'btn-p'}" onclick="toggleTask('${t.id}',${!t.active})">${t.active?'🔒':'✅'}</button><button class="btn btn-d btn-sm" onclick="deleteTask('${t.id}')">🗑️</button></td></tr>`).join('')||'<tr><td colspan="5" class="tbl-empty">Koi channel task nahi</td></tr>';
+  }catch(e){console.error(e);}
+};
+
+window.toggleTask=async(id,active)=>{try{await updateDoc(doc(db,'tasks',id),{active});showToast(active?'✅ Active!':'🔒 Inactive!');loadAllTasks();loadDashboard();}catch(e){showToast('❌ '+e.message,'err');}};
+window.deleteTask=async(id)=>{if(!confirm('Task delete karna chahte hain?'))return;try{await deleteDoc(doc(db,'tasks',id));showToast('🗑️ Deleted!');loadAllTasks();}catch(e){showToast('❌ '+e.message,'err');}};
+
+// PANELS
+window.showPanel=(name,el)=>{
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name)?.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={dashboard:'📊 Dashboard',users:'👥 Users',videos:'📺 Video Tasks',channels:'🔔 Channel Tasks',settings:'⚙️ Settings',withdraw:'💳 Withdrawal'};
+  document.getElementById('topTitle').textContent=titles[name]||name;
+  if(name==='users')loadUsers();
+  if(name==='videos'||name==='channels')loadAllTasks();
+  if(name==='withdraw')loadWithdrawals();
+  document.getElementById('sidebar').classList.remove('open');
+};
+
+async function loadWithdrawals(){
+  try{
+    const s=await getDocs(query(collection(db,'withdrawals'),orderBy('createdAt','desc')));
+    const rate=settings.coinRate||0.10;
+    document.getElementById('wdTable').innerHTML=s.docs.map(d=>{const w={id:d.id,...d.data()};return`<tr><td>${w.name||'—'}</td><td><span class="chip amber">🪙 ${w.coins}</span></td><td>Rs ${((w.coins||0)*rate).toFixed(0)}</td><td>${w.account||'—'}</td><td style="font-size:.75rem;color:var(--muted)">${w.createdAt?.toDate?.().toLocaleDateString()||'—'}</td><td><span class="chip ${w.status==='approved'?'green':w.status==='rejected'?'red':'amber'}">${w.status}</span></td><td>${w.status==='pending'?`<button class="btn btn-p btn-sm" onclick="approveWd('${w.id}','${w.uid}',${w.coins})">✅</button>`:'—'}</td></tr>`;}).join('')||'<tr><td colspan="7" class="tbl-empty">Koi request nahi</td></tr>';
+  }catch(e){}
+}
+window.approveWd=async(id,uid,coins)=>{try{await updateDoc(doc(db,'withdrawals',id),{status:'approved'});showToast('✅ Approved!');loadWithdrawals();}catch(e){showToast('❌ '+e.message,'err');}};
+
+// TOAST
+window.showToast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type?type:'')+' show';setTimeout(()=>t.classList.remove('show'),3000);};
+</script>
+</body>
+</html>

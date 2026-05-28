@@ -1,0 +1,22 @@
+{
+  "name": "EarnPro - Earn Coins Daily",
+  "short_name": "EarnPro",
+  "description": "Earn coins daily with tasks, invites & withdrawals!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060B18",
+  "theme_color": "#060B18",
+  "icons": [
+    {"src":"icons/icon-72.png","sizes":"72x72","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/icon-96.png","sizes":"96x96","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/icon-128.png","sizes":"128x128","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ],
+  "categories": ["finance","productivity"],
+  "shortcuts": [
+    {"name":"Daily Check-In","url":"/?page=tasks","icons":[{"src":"icons/icon-96.png","sizes":"96x96"}]},
+    {"name":"My Wallet","url":"/?page=wallet","icons":[{"src":"icons/icon-96.png","sizes":"96x96"}]}
+  ]
+}

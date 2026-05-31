@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>EarnPro</title>
+<meta name="theme-color" content="#060B18"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="EarnPro"/>
+<meta name="description" content="Earn coins daily with tasks, invites and withdrawals!"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="icon" href="icons/icon-192.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#060B18;--bg2:#0D1526;--bg3:#111B2E;
+  --rim:#1A2840;--rim2:#233352;
+  --sky:#E8F4FF;--sky2:#93C5FD;--sky3:#3D5A80;
+  --gold:#F5C518;--gold2:#D4A017;--gold3:#FDE68A;
+  --lime:#22D3A5;--rose:#FF4D6D;--violet:#7B61FF;
+}
+html,body{height:100%;background:var(--bg);color:var(--sky);font-family:'Space Grotesk',sans-serif;overflow:hidden}
+#app{height:100vh;overflow:hidden}
+button,input,select{font-family:'Space Grotesk',sans-serif}
+.bb{font-family:'Bebas Neue',sans-serif;letter-spacing:.5px}
+
+/* SPLASH */
+.splash{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse 80% 50% at 50% 10%,#0d2040,var(--bg) 65%)}
+.sp-logo{font-family:'Bebas Neue';font-size:72px;color:var(--gold);letter-spacing:3px;line-height:1}
+.sp-sub{color:var(--sky3);font-size:11px;letter-spacing:3px;text-transform:uppercase}
+.sp-dots{display:flex;gap:6px;margin-top:20px}
+.sp-dots span{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:dp 1.2s ease-in-out infinite}
+.sp-dots span:nth-child(2){animation-delay:.2s}
+.sp-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{transform:scale(0);opacity:.3}40%{transform:scale(1);opacity:1}}
+@keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pi{0%{transform:scale(.88);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes sh{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes glow{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* SHELL */
+.shell{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;background:var(--bg)}
+.topbar{background:var(--bg2);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rim);flex-shrink:0;position:relative}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(245,197,24,.4),transparent)}
+.tb-l p{color:var(--sky3);font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.tb-l h2{color:var(--sky);font-size:17px;font-weight:700}
+.coin-chip{display:flex;align-items:center;gap:7px;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.25);padding:9px 15px;border-radius:30px;color:var(--gold);font-family:'Bebas Neue';font-size:20px;letter-spacing:1px}
+.coin-chip::before{content:'◆';font-size:11px}
+.pg{flex:1;overflow-y:auto;padding:16px 15px 90px}
+.pg::-webkit-scrollbar{display:none}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg2);border-top:1px solid var(--rim);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0 8px;border:none;background:none;color:var(--sky3);cursor:pointer;transition:all .2s;position:relative}
+.nb.on{color:var(--gold)}
+.nb.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--gold);border-radius:2px 2px 0 0}
+.ni{font-size:20px;transition:transform .2s}
+.nb.on .ni{transform:translateY(-2px)}
+.nl{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+
+/* INSTALL BANNER */
+.ibanner{background:linear-gradient(135deg,var(--violet),#5030bb);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0}
+.ibanner.hidden{display:none}
+.ibanner p{color:#fff;font-size:13px;font-weight:600}
+.i-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 13px;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-110px);z-index:9999;padding:12px 22px;border-radius:12px;color:#fff;font-weight:600;font-size:14px;min-width:230px;text-align:center;transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 12px 40px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.s{background:linear-gradient(135deg,#0a6644,var(--lime))}
+.toast.e{background:linear-gradient(135deg,#990020,var(--rose))}
+.toast.w{background:linear-gradient(135deg,#8a6200,var(--gold));color:var(--bg)}
+
+/* ═══ LOGIN ═══ */
+.login-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);background-image:radial-gradient(ellipse 100% 40% at 50% 0%,#0d2040,transparent 60%)}
+.l-card{width:100%;max-width:400px;animation:su .5s ease}
+.brand{text-align:center;margin-bottom:28px}
+.brand-ico{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#1c2e08,#2a3e10);border:1px solid rgba(245,197,24,.3);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 40px rgba(245,197,24,.1)}
+.brand h1{font-family:'Bebas Neue';font-size:46px;color:var(--gold);letter-spacing:2px;line-height:1}
+.brand p{color:var(--sky3);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;margin-top:5px}
+.glass{background:rgba(13,21,38,.9);border-radius:24px;padding:24px;border:1px solid var(--rim2)}
+.tabs{display:flex;background:var(--bg);border-radius:11px;padding:4px;margin-bottom:22px;border:1px solid var(--rim)}
+.tab{flex:1;padding:10px 0;border:none;background:none;color:var(--sky3);border-radius:8px;cursor:pointer;font-weight:600;font-size:14px;transition:all .2s}
+.tab.on{background:var(--gold);color:var(--bg);font-weight:700}
+.fg{margin-bottom:14px}
+label.fl{display:block;color:var(--sky3);font-size:10px;font-weight:700;margin-bottom:7px;letter-spacing:1.5px;text-transform:uppercase}
+.fi{width:100%;padding:13px 15px;background:var(--bg);border:1px solid var(--rim2);border-radius:12px;color:var(--sky);font-size:15px;outline:none;transition:border-color .2s;appearance:none}
+.fi:focus{border-color:var(--gold)}
+.fi::placeholder{color:var(--sky3)}
+.err-box{background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.25);color:var(--rose);font-size:13px;text-align:center;padding:9px 12px;border-radius:10px;margin:8px 0}
+.btn-gold{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:13px;color:var(--bg);font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.3px;transition:opacity .2s,transform .1s;position:relative;overflow:hidden}
+.btn-gold::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.25) 50%,transparent 100%);background-size:200% auto;animation:sh 2.5s linear infinite}
+.btn-gold:active{transform:scale(.97)}
+.btn-gold:disabled{opacity:.45;cursor:not-allowed}
+.btn-v{width:100%;padding:14px;background:linear-gradient(135deg,var(--violet),#5030bb);border:none;border-radius:13px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:9px;transition:all .2s}
+.btn-ghost{width:100%;padding:13px;background:transparent;border:1.5px solid var(--rim2);border-radius:13px;color:var(--sky2);font-size:15px;font-weight:600;cursor:pointer;margin-top:9px;transition:border-color .2s}
+.hint{color:var(--sky3);font-size:11px;text-align:center;margin-top:10px}
+
+/* ═══ DASHBOARD ═══ */
+.hero{background:linear-gradient(150deg,#0d1f3c 0%,#14143c 100%);border-radius:22px;padding:26px 22px 22px;text-align:center;margin-bottom:16px;border:1px solid var(--rim2);position:relative;overflow:hidden;animation:su .4s ease}
+.hero::before{content:'';position:absolute;top:-30%;left:-10%;width:80%;height:160%;background:radial-gradient(ellipse,rgba(245,197,24,.06) 0%,transparent 65%);pointer-events:none}
+.hero-lbl{color:var(--sky3);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:10px}
+.hero-num{font-family:'Bebas Neue';font-size:70px;line-height:1;color:var(--gold);letter-spacing:1px;text-shadow:0 0 50px rgba(245,197,24,.25)}
+.hero-unit{color:var(--sky3);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px}
+.sbox{background:var(--bg2);border-radius:13px;padding:13px 8px;text-align:center;border:1px solid var(--rim)}
+.sv{font-family:'Bebas Neue';font-size:26px;color:var(--sky);letter-spacing:.5px}
+.sl{color:var(--sky3);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.sec{color:var(--sky3);font-size:10px;font-weight:700;margin:0 0 11px;text-transform:uppercase;letter-spacing:2px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qcard{background:var(--bg2);border-radius:18px;padding:18px 13px;display:flex;flex-direction:column;align-items:center;gap:7px;border:1px solid var(--rim);cursor:pointer;transition:all .18s;position:relative;overflow:hidden;user-select:none}
+.qcard:active{transform:scale(.93)}
+.qcard.done{opacity:.45;pointer-events:none}
+.q-ic{font-size:30px}
+.q-lb{color:var(--sky);font-weight:600;font-size:13px;text-align:center}
+.q-badge{background:rgba(245,197,24,.12);color:var(--gold);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,197,24,.22)}
+.q-sub{color:var(--sky3);font-size:11px}
+
+/* ═══ TASKS ═══ */
+.ptitle{font-family:'Bebas Neue';font-size:30px;color:var(--sky);letter-spacing:.5px;margin-bottom:16px}
+.tcard{background:var(--bg2);border-radius:15px;padding:14px 13px;margin-bottom:10px;display:flex;align-items:center;gap:12px;border:1px solid var(--rim);animation:su .3s ease;position:relative;overflow:hidden}
+.tcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold);border-radius:3px 0 0 3px;opacity:0;transition:opacity .25s}
+.tcard:not(.done):hover::before{opacity:1}
+.tcard.done{opacity:.42}
+.t-ic{font-size:30px;flex-shrink:0}
+.t-info{flex:1}
+.t-name{color:var(--sky);font-weight:600;font-size:14px}
+.t-desc{color:var(--sky3);font-size:11px;margin-top:2px}
+.t-r{text-align:right;flex-shrink:0}
+.t-coins{font-family:'Bebas Neue';color:var(--gold);font-size:20px;letter-spacing:.5px;margin-bottom:5px}
+.tbtn{background:var(--gold);color:var(--bg);border:none;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s}
+.tbtn:active{transform:scale(.9)}
+.tbtn.done{background:var(--lime);cursor:default}
+
+/* ═══ INVITE ═══ */
+.ih{background:linear-gradient(150deg,#0d1f3c,#14143c);border-radius:22px;padding:26px 18px;text-align:center;margin-bottom:15px;border:1px solid var(--rim2);position:relative;overflow:hidden}
+.ih::before{content:'';position:absolute;top:-50%;left:-30%;width:200%;height:200%;background:radial-gradient(ellipse,rgba(123,97,255,.06) 0%,transparent 60%)}
+.ih-ic{font-size:52px;margin-bottom:10px}
+.ih-h{font-family:'Bebas Neue';font-size:28px;color:var(--sky);letter-spacing:.5px;margin-bottom:6px}
+.ih-p{color:var(--sky3);font-size:13px;line-height:1.6}
+.code-box{background:var(--bg);border-radius:15px;padding:20px;text-align:center;border:2px dashed rgba(245,197,24,.4);margin-bottom:12px}
+.code-lbl{color:var(--sky3);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:10px}
+.code-val{font-family:'Bebas Neue';color:var(--gold);font-size:30px;letter-spacing:6px;text-shadow:0 0 25px rgba(245,197,24,.3)}
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.istat{background:var(--bg2);border-radius:13px;padding:16px;text-align:center;border:1px solid var(--rim)}
+.iv{font-family:'Bebas Neue';font-size:32px;color:var(--gold);letter-spacing:.5px}
+.il{color:var(--sky3);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+
+/* ═══ RANKING ═══ */
+.podium{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:9px;margin-bottom:14px;align-items:end}
+.pod{background:var(--bg2);border-radius:16px;padding:16px 10px;text-align:center;border:1px solid var(--rim)}
+.pod.p1{background:linear-gradient(150deg,#1a2c06,#12123a);border-color:rgba(245,197,24,.4)}
+.pod-med{font-size:26px;margin-bottom:6px}
+.pod-name{color:var(--sky);font-size:11px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod-c{font-family:'Bebas Neue';color:var(--gold);font-size:17px;margin-top:4px}
+.rcard{background:var(--bg2);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1px solid var(--rim);margin-bottom:8px;animation:su .3s ease}
+.rcard.me{border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.03)}
+.rnum{font-family:'Bebas Neue';font-size:19px;color:var(--sky3);width:28px;text-align:center;flex-shrink:0}
+.rname{flex:1;color:var(--sky);font-weight:600;font-size:14px}
+.rname.me{color:var(--gold)}
+.rc{font-family:'Bebas Neue';color:var(--gold);font-size:18px;letter-spacing:.5px}
+
+/* ═══ WALLET ═══ */
+.wcard{background:linear-gradient(150deg,#0d1f3c,#14143c);border-radius:22px;padding:26px 22px;text-align:center;margin-bottom:17px;border:1px solid rgba(123,97,255,.3);position:relative;overflow:hidden}
+.wcard::before{content:'';position:absolute;top:-30%;right:-20%;width:60%;height:160%;background:radial-gradient(ellipse,rgba(123,97,255,.07) 0%,transparent 65%)}
+.w-lbl{color:var(--sky3);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px}
+.w-num{font-family:'Bebas Neue';font-size:62px;color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(245,197,24,.2)}
+.w-sub{color:var(--sky3);font-size:12px;margin:6px 0 17px}
+.wf{background:var(--bg2);border-radius:18px;padding:20px;margin-bottom:15px;border:1px solid var(--rim);animation:pi .22s ease}
+.wf h3{font-family:'Bebas Neue';font-size:22px;color:var(--sky);letter-spacing:.5px;margin-bottom:15px}
+.witem{background:var(--bg2);border-radius:12px;padding:12px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--rim)}
+.wi-l p{color:var(--sky);font-weight:600;font-size:14px}
+.wi-l small{color:var(--sky3);font-size:11px}
+.badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge.pending{background:rgba(245,197,24,.12);color:var(--gold);border:1px solid rgba(245,197,24,.28)}
+.badge.approved{background:rgba(34,211,165,.12);color:var(--lime);border:1px solid rgba(34,211,165,.28)}
+.badge.rejected{background:rgba(255,77,109,.12);color:var(--rose);border:1px solid rgba(255,77,109,.28)}
+.empty{text-align:center;color:var(--sky3);padding:30px 0;font-size:14px}
+.load-st{text-align:center;color:var(--sky3);padding:36px 0;font-size:14px;animation:glow 1.5s ease-in-out infinite}
+
+/* ═══ ADMIN ═══ */
+.adm-top{background:#090920;border-bottom-color:#1e1a50}
+.adm-nav{background:#090920;border-top-color:#1e1a50}
+.adm-nav .nb.on{color:var(--violet)}
+.adm-nav .nb.on::after{background:var(--violet)}
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.astat{background:var(--bg2);border-radius:14px;padding:15px;border:1px solid var(--rim)}
+.astat-ico{font-size:24px;margin-bottom:6px}
+.astat-v{font-family:'Bebas Neue';font-size:30px;color:var(--sky);letter-spacing:.5px}
+.astat-l{color:var(--sky3);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.ucard{background:var(--bg2);border-radius:15px;padding:15px;margin-bottom:10px;border:1px solid var(--rim)}
+.uc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px}
+.u-name{color:var(--sky);font-weight:700;font-size:15px}
+.u-det{color:var(--sky3);font-size:11px;margin-top:2px}
+.u-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:11px}
+.u-meta span{color:var(--sky3);font-size:12px}
+.brow{display:flex;gap:7px}
+.bg-b{flex:1;padding:9px 0;background:rgba(34,211,165,.08);border:1px solid var(--lime);border-radius:10px;color:var(--lime);font-weight:700;cursor:pointer;font-size:12px;font-family:'Space Grotesk'}
+.br-b{flex:1;padding:9px 0;background:rgba(255,77,109,.08);border:1px solid var(--rose);border-radius:10px;color:var(--rose);font-weight:700;cursor:pointer;font-size:12px;font-family:'Space Grotesk'}
+.bv-b{flex:1;padding:9px 0;background:rgba(123,97,255,.08);border:1px solid var(--violet);border-radius:10px;color:var(--violet);font-weight:700;cursor:pointer;font-size:12px;font-family:'Space Grotesk'}
+.logout-b{padding:8px 15px;background:rgba(255,77,109,.08);border:1px solid var(--rose);border-radius:10px;color:var(--rose);font-weight:700;cursor:pointer;font-size:13px;font-family:'Space Grotesk'}
+
+.vid-bar{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:10px;padding:10px 14px;color:#a5b4fc;font-size:12px;text-align:center;margin-bottom:14px}
+.vcard{background:var(--card);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;gap:12px;border:1px solid var(--rim);transition:opacity .3s}
+.vcard.done{opacity:.5}
+.vthumb{width:80px;height:60px;background:linear-gradient(135deg,#1e1b4b,#1e3a5f);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;flex-shrink:0;border:1px solid var(--rim)}
+.vthumb.vdone{cursor:default}
+.vplay{color:#fff;font-size:22px;opacity:.85;background:rgba(0,0,0,.4);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.vcheck{position:absolute;inset:0;background:rgba(16,185,129,.7);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700}
+.vinfo{flex:1;min-width:0}
+.vtitle{color:var(--txt);font-weight:600;font-size:13px;line-height:1.4;margin-bottom:3px}
+.vmeta{color:var(--dim);font-size:11px;margin-bottom:6px}
+.vcrow{display:flex;align-items:center;gap:8px}
+.vc{color:var(--gold);font-weight:700;font-size:13px}
+.vw{color:var(--lime);font-size:12px;font-weight:600}
+.vbtn{background:var(--violet);color:#fff;border:none;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer}
+.vov{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px}
+.vmd{background:var(--card);border-radius:22px;padding:28px 22px;text-align:center;border:1px solid var(--rim);width:100%;max-width:320px}
+.vtring{width:72px;height:72px;border-radius:50%;border:4px solid var(--violet);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:26px;font-weight:800;color:var(--gold);background:rgba(99,102,241,.1)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="splash">
+    <div style="width:82px;height:82px;border-radius:22px;background:linear-gradient(135deg,#1c2e08,#2a3e10);border:1px solid rgba(245,197,24,.3);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 6px;box-shadow:0 0 40px rgba(245,197,24,.12)">💰</div>
+    <div class="sp-logo">EarnPro</div>
+    <div class="sp-sub">Earn · Invite · Withdraw</div>
+    <div class="sp-dots"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+  🔥 FIREBASE — firebase.google.com pe jao
+  Project Settings → Web App → Config copy karo
+  ════════════════════════════════════════════ -->
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDoc,updateDoc,deleteDoc,collection,getDocs,addDoc,query,orderBy,limit,serverTimestamp,increment}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ╔══════════════════════════════════════════════╗
+// ║   🔥 FIREBASE CONFIG — YAHAN PASTE KARO      ║
+// ║                                              ║
+// ║  1. firebase.google.com → apna project       ║
+// ║  2. Project Settings ⚙️ → General            ║
+// ║  3. Your Apps → Web App → Config copy karo   ║
+// ║  4. Neeche sirf values replace karo          ║
+// ╚══════════════════════════════════════════════╝
+const firebaseConfig={
+  apiKey:"AIzaSyBr_X6fSwLBhCiCgSLiPQpG0xLQLGlzxiM",
+  authDomain:"earnx-aac00.firebaseapp.com",
+  projectId:"earnx-aac00",
+  storageBucket:"earnx-aac00.firebasestorage.app",
+  messagingSenderId:"449198718530",
+  appId:"1:449198718530:web:ea2f129b7c28cb17a1b7db"
+};
+// ⚠️ ZARURI: Firestore → Rules mein paste karo:
+// rules_version='2';service cloud.firestore{
+//   match /databases/{database}/documents{
+//     match /{document=**}{
+//       allow read,write:if request.auth!=null;}}}
+// Phir "Publish" karo
+
+const fireApp=initializeApp(firebaseConfig);
+const auth=getAuth(fireApp);
+const db=getFirestore(fireApp);
+window.$f={auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,doc,setDoc,getDoc,updateDoc,deleteDoc,collection,getDocs,addDoc,query,orderBy,limit,serverTimestamp,increment};
+
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    const snap=await getDoc(doc(db,"users",user.uid));
+    if(snap.exists()){
+      window.$u={uid:user.uid,...snap.data()};
+      snap.data().role==="admin"?renderAdmin():renderUser();
+    }else renderLogin();
+  }else{window.$u=null;renderLogin()}
+});
+</script>
+
+<script>
+const $app=()=>document.getElementById("app");
+const $=id=>document.getElementById(id);
+const f=()=>window.$f;
+const u=()=>window.$u;
+
+/* TOAST */
+let _tt;
+function toast(msg,type="s"){
+  clearTimeout(_tt);
+  let t=document.querySelector(".toast");
+  if(!t){t=document.createElement("div");t.className="toast";document.body.appendChild(t)}
+  t.textContent=msg;t.className=`toast ${type}`;
+  requestAnimationFrame(()=>t.classList.add("show"));
+  _tt=setTimeout(()=>t.classList.remove("show"),3200);
+}
+
+/* PWA */
+let _dp;
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();_dp=e;document.getElementById("ib")?.classList.remove("hidden")});
+window.installPWA=()=>{if(!_dp)return;_dp.prompt();_dp.userChoice.then(()=>{document.getElementById("ib")?.classList.add("hidden");_dp=null})};
+
+/* ════════ LOGIN ════════ */
+/* ════════ FIRST TIME SETUP ════════ */
+window.renderSetup=()=>{
+  $app().innerHTML=`<div class="login-bg"><div class="l-card">
+  <div class="brand">
+    <div class="brand-ico">⚙️</div>
+    <h1 style="font-size:36px">Setup</h1>
+    <p>Pehli baar admin account banao</p>
+  </div>
+  <div class="glass">
+    <div style="background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.25);border-radius:12px;padding:14px;margin-bottom:18px;color:#F5C518;font-size:13px;line-height:1.6">
+      ⚠️ Yeh page sirf ek baar use karo.<br>Admin ban jane ke baad is link ko delete kar do.
+    </div>
+    <div class="fg"><label class="fl">Admin Name</label><input class="fi" id="sn" value="Admin" /></div>
+    <div class="fg"><label class="fl">Admin Email</label><input class="fi" id="se" type="email" placeholder="admin@earnpro.com"/></div>
+    <div class="fg"><label class="fl">Admin Password</label><input class="fi" id="sp" type="password" placeholder="Min 6 characters"/></div>
+    <div id="se-err"></div>
+    <button class="btn-gold" onclick="doSetup()">🚀 Admin Account Banao</button>
+  </div>
+  </div></div>`;
+};
+
+window.doSetup=async()=>{
+  const n=$("sn")?.value.trim(),e=$("se")?.value.trim(),p=$("sp")?.value;
+  const err=$("se-err");
+  if(!n||!e||!p){err.innerHTML=`<div class="err-box">Sab fields bharein</div>`;return}
+  if(p.length<6){err.innerHTML=`<div class="err-box">Password min 6 characters</div>`;return}
+  const btn=document.querySelector(".btn-gold");btn.disabled=true;btn.textContent="Ban raha hai...";
+  try{
+    const{auth,db,createUserWithEmailAndPassword,doc,setDoc,serverTimestamp}=f();
+    const cr=await createUserWithEmailAndPassword(auth,e,p);
+    const uid=cr.user.uid;
+    await setDoc(doc(db,"users",uid),{
+      name:n,email:e,coins:0,role:"admin",
+      inviteCode:"ADMIN",invitedBy:null,
+      referralCount:0,totalWithdrawn:0,
+      spinsAvailable:0,freeSpinUsed:false,
+      bigPrizeAllowed:false,iPhoneWinner:false,
+      completedTasks:[],watchedVideos:[],
+      lastCheckin:null,status:"active",
+      createdAt:serverTimestamp()
+    });
+    err.innerHTML=`<div style="background:rgba(34,211,165,.1);border:1px solid rgba(34,211,165,.3);color:#22D3A5;padding:12px;border-radius:10px;text-align:center;font-weight:600">
+      ✅ Admin ban gaya!<br><span style="font-size:12px;opacity:.7">Ab normal login page use karo</span>
+    </div>`;
+    setTimeout(()=>renderLogin(),2000);
+  }catch(ex){
+    const msgs={"auth/email-already-in-use":"Yeh email pehle se hai — seedha login karo","auth/weak-password":"Password aur strong karo"};
+    err.innerHTML=`<div class="err-box">${msgs[ex.code]||ex.message}</div>`;
+    btn.disabled=false;btn.textContent="Admin Account Banao";
+  }
+};
+
+window.renderLogin=()=>{
+  $app().innerHTML=`<div class="login-bg"><div class="l-card">
+  <div class="brand">
+    <div class="brand-ico">💰</div>
+    <h1>EarnPro</h1>
+    <p>Earn Coins · Win Rewards</p>
+  </div>
+  <div class="glass">
+    <div class="tabs"><button class="tab on" onclick="sTab('l')">Login</button><button class="tab" onclick="sTab('r')">Register</button></div>
+    <div id="fa">${lf()}</div>
+  </div>
+  </div></div>`;
+};
+
+window.sTab=t=>{
+  document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("on",i===(t==="l"?0:1)));
+  $("fa").innerHTML=t==="l"?lf():rf();
+};
+
+const lf=()=>`
+<div class="fg"><label class="fl">Email</label><input class="fi" id="le" type="email" placeholder="you@email.com" autocomplete="email"/></div>
+<div class="fg"><label class="fl">Password</label><input class="fi" id="lp" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+<div id="ae"></div>
+<button class="btn-gold" onclick="doLogin()">Login</button>
+<p class="hint">Admin: admin@earnpro.com</p>`;
+
+const rf=()=>`
+<div class="fg"><label class="fl">Full Name</label><input class="fi" id="rn" placeholder="Your name"/></div>
+<div class="fg"><label class="fl">Email</label><input class="fi" id="re" type="email" placeholder="you@email.com" autocomplete="email"/></div>
+<div class="fg"><label class="fl">Password</label><input class="fi" id="rp" type="password" placeholder="Min 6 characters" autocomplete="new-password"/></div>
+<div class="fg"><label class="fl">Invite Code <span style="opacity:.4">(optional)</span></label><input class="fi" id="ri" placeholder="EARN-XXXXX"/></div>
+<div id="ae"></div>
+<button class="btn-gold" onclick="doReg()">Create Account</button>`;
+
+window.doLogin=async()=>{
+  const e=$("le")?.value.trim(),p=$("lp")?.value,err=$("ae");
+  if(!e||!p){err.innerHTML=`<div class="err-box">Email and password required</div>`;return}
+  const btn=document.querySelector("#fa .btn-gold");btn.disabled=true;btn.textContent="...";
+  try{await f().signInWithEmailAndPassword(f().auth,e,p)}
+  catch(ex){
+    const m={"auth/user-not-found":"Email not registered","auth/wrong-password":"Wrong password","auth/invalid-credential":"Invalid email or password","auth/too-many-requests":"Too many attempts — try later"};
+    err.innerHTML=`<div class="err-box">${m[ex.code]||"Login failed"}</div>`;
+    btn.disabled=false;btn.textContent="Login";
+  }
+};
+
+window.doReg=async()=>{
+  const n=$("rn")?.value.trim(),e=$("re")?.value.trim(),p=$("rp")?.value,inv=$("ri")?.value.trim().toUpperCase();
+  const err=$("ae");
+  if(!n||!e||!p){err.innerHTML=`<div class="err-box">Sab fields zaruri hain</div>`;return}
+  if(p.length<6){err.innerHTML=`<div class="err-box">Password kam az kam 6 characters ka ho</div>`;return}
+  const btn=document.querySelector("#fa .btn-gold");btn.disabled=true;btn.textContent="...";
+  try{
+    const{auth,db,createUserWithEmailAndPassword,doc,setDoc,collection,getDocs,updateDoc,increment,serverTimestamp}=f();
+    const cr=await createUserWithEmailAndPassword(auth,e,p);
+    const uid=cr.user.uid;
+    const code="EARN-"+n.replace(/\s/g,"").toUpperCase().slice(0,5)+Math.random().toString(36).slice(2,4).toUpperCase();
+    await setDoc(doc(db,"users",uid),{
+      name:n, email:e, coins:0, role:"user",
+      inviteCode:code, invitedBy:inv||null,
+      referralCount:0, totalWithdrawn:0,
+      spinsAvailable:0, freeSpinUsed:false,
+      bigPrizeAllowed:false, iPhoneWinner:false,
+      completedTasks:[], watchedVideos:[],
+      lastCheckin:null, status:"active",
+      createdAt:serverTimestamp()
+    });
+    if(inv){
+      const snap=await getDocs(collection(db,"users"));
+      for(const d of snap.docs){
+        if(d.data().inviteCode===inv){
+          await updateDoc(doc(db,"users",d.id),{coins:increment(50),referralCount:increment(1),spinsAvailable:increment(1)});
+          break;
+        }
+      }
+    }
+  }catch(ex){
+    const msgs={
+      "auth/email-already-in-use":"Yeh email pehle se registered hai",
+      "auth/invalid-email":"Email sahi nahi hai",
+      "auth/weak-password":"Password zyada strong karo",
+      "auth/network-request-failed":"Internet connection check karo",
+    };
+    err.innerHTML=`<div class="err-box">${msgs[ex.code]||"Registration fail hua — Firestore rules check karo"}</div>`;
+    btn.disabled=false;btn.textContent="Create Account";
+  }
+};
+
+/* ════════ USER PANEL ════════ */
+let _pg="dashboard";
+const PG=["dashboard","tasks","videos","invite","wallet"];
+const NAV=[["dashboard","🏠","Home"],["tasks","✅","Tasks"],["videos","▶️","Videos"],["invite","👥","Invite"],["wallet","💳","Wallet"]];
+
+window.renderUser=()=>{
+  const cu=u();
+  $app().innerHTML=`<div class="shell">
+  <div id="ib" class="ibanner hidden"><p>📱 Install EarnPro on home screen!</p><button class="i-btn" onclick="installPWA()">Install</button></div>
+  <div class="topbar">
+    <div class="tb-l"><p>Welcome back</p><h2>${cu.name}</h2></div>
+    <div class="coin-chip" id="cd">${cu.coins||0}</div>
+  </div>
+  <div class="pg" id="mc"></div>
+  <nav class="bnav">${NAV.map(([id,ic,lb])=>`<button class="nb${_pg===id?" on":""}" onclick="gp('${id}')"><span class="ni">${ic}</span><span class="nl">${lb}</span></button>`).join("")}</nav>
+  </div>`;
+  gp(_pg);
+};
+
+window.gp=pg=>{
+  _pg=pg;
+  document.querySelectorAll(".bnav .nb").forEach((b,i)=>b.classList.toggle("on",PG[i]===pg));
+  ({dashboard:pDash,tasks:pTasks,videos:pVideos,invite:pInvite,ranking:pRank,wallet:pWallet})[pg]?.();
+};
+
+const mc=()=>$("mc");
+const upd=()=>{const e=$("cd");if(e)e.textContent=u().coins||0};
+
+function pDash(){
+  const cu=u(),td=new Date().toDateString(),ci=cu.lastCheckin===td;
+  mc().innerHTML=`
+  <div class="hero">
+    <div class="hero-lbl">Total Balance</div>
+    <div class="hero-num">${cu.coins||0}</div>
+    <div class="hero-unit">◆ coins</div>
+  </div>
+  <div class="sgrid">
+    <div class="sbox"><div class="sv">${(cu.completedTasks||[]).length}</div><div class="sl">Tasks</div></div>
+    <div class="sbox"><div class="sv">${cu.referralCount||0}</div><div class="sl">Invites</div></div>
+    <div class="sbox"><div class="sv">${cu.totalWithdrawn||0}</div><div class="sl">Withdrawn</div></div>
+  </div>
+  <p class="sec">Quick Actions</p>
+  <div class="qgrid">
+    <div class="qcard${ci?" done":""}" onclick="${ci?"":"doCI()"}">
+      <span class="q-ic">📅</span><span class="q-lb">Daily Check-In</span>
+      <span class="q-badge">${ci?"✓ Done":"+10 coins"}</span>
+    </div>
+    <div class="qcard" onclick="gp('tasks')"><span class="q-ic">✅</span><span class="q-lb">Tasks</span><span class="q-sub">Earn more</span></div>
+    <div class="qcard" onclick="gp('invite')"><span class="q-ic">👥</span><span class="q-lb">Invite</span><span class="q-badge">+50/invite</span></div>
+    <div class="qcard" onclick="gp('wallet')"><span class="q-ic">💳</span><span class="q-lb">Withdraw</span><span class="q-sub">Cash out</span></div>
+  </div>`;
+}
+
+function pTasks(){
+  const cu=u(),td=new Date().toDateString(),done=cu.completedTasks||[];
+  const TL=[
+    {id:"ci_"+td,ic:"📅",nm:"Daily Check-In",ds:"Log in every day",c:10,fn:"doCI()",d:true},
+    {id:"yt_sub",ic:"▶️",nm:"Subscribe YouTube",ds:"Subscribe our channel",c:25,fn:"doYT()"},
+    {id:"wa_share",ic:"📢",nm:"Share on WhatsApp",ds:"Share with friends",c:15,fn:"doShr()"},
+    {id:"rate_app",ic:"⭐",nm:"Rate the App",ds:"Give us 5 stars",c:20,fn:"doRate()"},
+  ];
+  mc().innerHTML=`<h2 class="ptitle">Daily Tasks</h2>`+TL.map(t=>{
+    const ok=done.includes(t.id)||(t.d&&cu.lastCheckin===td);
+    return`<div class="tcard${ok?" done":""}">
+    <span class="t-ic">${t.ic}</span>
+    <div class="t-info"><div class="t-name">${t.nm}</div><div class="t-desc">${t.ds}</div></div>
+    <div class="t-r"><div class="t-coins">+${t.c}</div>
+    <button class="tbtn${ok?" done":""}"${ok?" disabled":" onclick=\""+t.fn+"\""} >${ok?"✓ Done":"Claim"}</button>
+    </div></div>`;
+  }).join("");
+}
+
+function pInvite(){
+  const cu=u();
+  mc().innerHTML=`
+  <h2 class="ptitle">Refer & Earn</h2>
+  <div class="ih">
+    <div class="ih-ic">👥</div>
+    <div class="ih-h">+50 Coins Per Invite</div>
+    <div class="ih-p">Every friend who signs up with your code earns you 50 coins instantly!</div>
+  </div>
+  <div class="code-box">
+    <div class="code-lbl">Your Invite Code</div>
+    <div class="code-val">${cu.inviteCode||"EARN-?????"}</div>
+  </div>
+  <button class="btn-gold" onclick="cpCode('${cu.inviteCode}')">📋 Copy Code</button>
+  <button class="btn-ghost" onclick="shrCode('${cu.inviteCode}','${cu.name}')">📤 Share via WhatsApp</button>
+  <div class="igrid">
+    <div class="istat"><div style="font-size:20px;margin-bottom:4px">👤</div><div class="iv">${cu.referralCount||0}</div><div class="il">Referrals</div></div>
+    <div class="istat"><div style="font-size:20px;margin-bottom:4px">◆</div><div class="iv">${(cu.referralCount||0)*50}</div><div class="il">Earned</div></div>
+  </div>`;
+}
+
+async function pRank(){
+  mc().innerHTML=`<h2 class="ptitle">Leaderboard</h2><div class="load-st">Loading rankings...</div>`;
+  const{db,collection,query,orderBy,limit,getDocs}=f();
+  const snap=await getDocs(query(collection(db,"users"),orderBy("coins","desc"),limit(20)));
+  const uid=u().uid,M=["🥇","🥈","🥉"],docs=snap.docs;
+  let h=`<h2 class="ptitle">Leaderboard</h2>`;
+  if(docs.length>=3){
+    const[f1,f2,f3]=docs.map(d=>d.data());
+    h+=`<div class="podium">
+    <div class="pod"><div class="pod-med">🥈</div><div class="pod-name">${f2.name}</div><div class="pod-c">◆${f2.coins||0}</div></div>
+    <div class="pod p1"><div class="pod-med">🥇</div><div class="pod-name">${f1.name}</div><div class="pod-c">◆${f1.coins||0}</div></div>
+    <div class="pod"><div class="pod-med">🥉</div><div class="pod-name">${f3.name}</div><div class="pod-c">◆${f3.coins||0}</div></div>
+    </div>`;
+  }
+  docs.slice(3).forEach((d,i)=>{
+    const usr=d.data(),me=d.id===uid;
+    h+=`<div class="rcard${me?" me":""}"><div class="rnum">#${i+4}</div><div class="rname${me?" me":""}">${usr.name}${me?" (You)":""}</div><div class="rc">◆${usr.coins||0}</div></div>`;
+  });
+  if(!docs.some(d=>d.id===uid)){const cu=u();h+=`<hr style="border-color:var(--rim);margin:12px 0"/><div class="rcard me"><div class="rnum">?</div><div class="rname me">${cu.name} (You)</div><div class="rc">◆${cu.coins||0}</div></div>`}
+  mc().innerHTML=h;
+}
+
+let _wo=false;
+async function pWallet(){
+  _wo=false;const cu=u();
+  mc().innerHTML=`
+  <h2 class="ptitle">Wallet</h2>
+  <div class="wcard">
+    <div class="w-lbl">Available Balance</div>
+    <div class="w-num">${cu.coins||0}</div>
+    <div class="w-sub">◆ coins &nbsp;·&nbsp; Min 100 to withdraw</div>
+    <button class="btn-gold" onclick="togW()">💸 Withdraw</button>
+  </div>
+  <div id="wfw"></div>
+  <p class="sec">History</p>
+  <div id="wh"><div class="load-st">Loading...</div></div>`;
+  loadWH();
+}
+
+async function loadWH(){
+  const{db,collection,query,orderBy,getDocs}=f();
+  const snap=await getDocs(query(collection(db,`users/${u().uid}/withdrawals`),orderBy("createdAt","desc")));
+  const el=$("wh");if(!el)return;
+  if(snap.empty){el.innerHTML=`<div class="empty">No withdrawals yet</div>`;return}
+  el.innerHTML=snap.docs.map(d=>{const w=d.data();return`<div class="witem"><div class="wi-l"><p>◆ ${w.amount} coins</p><small>${w.method} · ${w.account} · ${w.date||""}</small></div><span class="badge ${(w.status||"").toLowerCase()}">${w.status}</span></div>`}).join("");
+}
+
+window.togW=()=>{
+  const wp=$("wfw");
+  if(_wo){wp.innerHTML="";_wo=false;return}
+  _wo=true;
+  wp.innerHTML=`<div class="wf">
+  <h3>New Withdrawal</h3>
+  <div class="fg"><label class="fl">Amount (coins)</label><input class="fi" id="wa" type="number" placeholder="Min 100"/></div>
+  <div class="fg"><label class="fl">Method</label><select class="fi" id="wm"><option>JazzCash</option><option>Easypaisa</option><option>Bank Transfer</option></select></div>
+  <div class="fg"><label class="fl">Account Number</label><input class="fi" id="wac" placeholder="03XX-XXXXXXX"/></div>
+  <div id="we"></div>
+  <button class="btn-gold" onclick="subW()">Send Request</button>
+  </div>`;
+};
+
+window.subW=async()=>{
+  const amt=parseInt($("wa")?.value),meth=$("wm")?.value,acc=$("wac")?.value.trim(),err=$("we"),cu=u();
+  if(!amt||amt<100){err.innerHTML=`<div class="err-box">Minimum 100 coins</div>`;return}
+  if(amt>(cu.coins||0)){err.innerHTML=`<div class="err-box">Not enough coins</div>`;return}
+  if(!acc){err.innerHTML=`<div class="err-box">Enter account number</div>`;return}
+  const btn=document.querySelector(".wf .btn-gold");btn.disabled=true;btn.textContent="Sending...";
+  const{db,doc,updateDoc,addDoc,collection,serverTimestamp,increment}=f();
+  await updateDoc(doc(db,"users",cu.uid),{coins:increment(-amt)});
+  const wd={amount:amt,method:meth,account:acc,status:"Pending",date:new Date().toLocaleDateString(),createdAt:serverTimestamp()};
+  await addDoc(collection(db,`users/${cu.uid}/withdrawals`),wd);
+  await addDoc(collection(db,"withdrawalRequests"),{...wd,uid:cu.uid,userName:cu.name,userEmail:cu.email});
+  cu.coins=(cu.coins||0)-amt;upd();toast("✅ Withdrawal request sent!");pWallet();
+};
+
+/* TASK ACTIONS */
+window.doCI=async()=>{
+  const cu=u(),td=new Date().toDateString();
+  if(cu.lastCheckin===td){toast("Already checked in!","e");return}
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"users",cu.uid),{coins:increment(10),lastCheckin:td});
+  cu.coins=(cu.coins||0)+10;cu.lastCheckin=td;upd();toast("📅 Check-In! +10 Coins");pDash();
+};
+window.doYT=async()=>{
+  const cu=u();if((cu.completedTasks||[]).includes("yt_sub")){toast("Already subscribed!","e");return}
+  window.open("https://youtube.com","_blank");
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"users",cu.uid),{coins:increment(25),completedTasks:[...(cu.completedTasks||[]),"yt_sub"]});
+  cu.coins=(cu.coins||0)+25;cu.completedTasks=[...(cu.completedTasks||[]),"yt_sub"];upd();toast("▶️ Subscribed! +25 Coins");pTasks();
+};
+window.doShr=async()=>{
+  const cu=u();if((cu.completedTasks||[]).includes("wa_share")){toast("Already shared!","e");return}
+  const txt=`💰 Join EarnPro & earn daily!\nCode: ${cu.inviteCode}`;
+  navigator.share?navigator.share({title:"EarnPro",text:txt}):(navigator.clipboard?.writeText(txt),toast("Copied!","w"));
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"users",cu.uid),{coins:increment(15),completedTasks:[...(cu.completedTasks||[]),"wa_share"]});
+  cu.coins=(cu.coins||0)+15;cu.completedTasks=[...(cu.completedTasks||[]),"wa_share"];upd();toast("📢 Shared! +15 Coins");pTasks();
+};
+window.doRate=async()=>{
+  const cu=u();if((cu.completedTasks||[]).includes("rate_app")){toast("Already rated!","e");return}
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"users",cu.uid),{coins:increment(20),completedTasks:[...(cu.completedTasks||[]),"rate_app"]});
+  cu.coins=(cu.coins||0)+20;cu.completedTasks=[...(cu.completedTasks||[]),"rate_app"];upd();toast("⭐ Rated! +20 Coins");pTasks();
+};
+window.cpCode=c=>{navigator.clipboard?.writeText(c);toast("📋 Copied!")};
+window.shrCode=(c,n)=>{
+  const t=`💰 ${n} invited you!\nCode: ${c}`;
+  navigator.share?navigator.share({title:"EarnPro",text:t}):(navigator.clipboard?.writeText(t),toast("Copied!","w"));
+};
+
+/* ════════ ADMIN PANEL ════════ */
+let _ap="overview";
+const AP=["overview","users","withdrawals","videos"];
+const AN=[["overview","📊","Overview"],["users","👥","Users"],["withdrawals","💸","Payouts"],["videos","▶️","Videos"]];
+
+window.renderAdmin=()=>{
+  const cu=u();
+  $app().innerHTML=`<div class="shell">
+  <div class="topbar adm-top">
+    <div class="tb-l"><p>Admin Panel</p><h2>⚙️ ${cu.name}</h2></div>
+    <button class="logout-b" onclick="doOut()">Logout</button>
+  </div>
+  <div class="pg" id="amc"></div>
+  <nav class="bnav adm-nav">${AN.map(([id,ic,lb])=>`<button class="nb${_ap===id?" on":""}" onclick="agp('${id}')"><span class="ni">${ic}</span><span class="nl">${lb}</span></button>`).join("")}</nav>
+  </div>`;
+  agp(_ap);
+};
+
+const amc=()=>$("amc");
+window.agp=pg=>{
+  _ap=pg;
+  document.querySelectorAll(".adm-nav .nb").forEach((b,i)=>b.classList.toggle("on",AP[i]===pg));
+  ({overview:aOv,users:aUs,withdrawals:aWd,videos:aVid})[pg]?.();
+};
+
+async function aOv(){
+  amc().innerHTML=`<h2 class="ptitle">Overview</h2><div class="load-st">Loading...</div>`;
+  const{db,collection,query,orderBy,getDocs}=f();
+  const[uS,wS]=await Promise.all([getDocs(collection(db,"users")),getDocs(query(collection(db,"withdrawalRequests"),orderBy("createdAt","desc")))]);
+  const users=uS.docs.map(d=>d.data()),wr=wS.docs.map(d=>d.data());
+  const tc=users.reduce((s,u)=>s+(u.coins||0),0),pn=wr.filter(w=>w.status==="Pending").length,ap=wr.filter(w=>w.status==="Approved").length;
+  amc().innerHTML=`
+  <h2 class="ptitle">Overview</h2>
+  <div class="agrid">
+    <div class="astat" style="border-left:3px solid var(--violet)"><div class="astat-ico">👥</div><div class="astat-v">${users.length}</div><div class="astat-l">Total Users</div></div>
+    <div class="astat" style="border-left:3px solid var(--gold)"><div class="astat-ico">◆</div><div class="astat-v">${tc}</div><div class="astat-l">Coins Issued</div></div>
+    <div class="astat" style="border-left:3px solid var(--rose)"><div class="astat-ico">⏳</div><div class="astat-v">${pn}</div><div class="astat-l">Pending</div></div>
+    <div class="astat" style="border-left:3px solid var(--lime)"><div class="astat-ico">✅</div><div class="astat-v">${ap}</div><div class="astat-l">Approved</div></div>
+  </div>
+  <p class="sec">Recent Requests</p>
+  ${wr.slice(0,5).map(w=>`<div class="witem"><div class="wi-l"><p>${w.userName}</p><small>${w.method} · ◆${w.amount} · ${w.date||""}</small></div><span class="badge ${(w.status||"").toLowerCase()}">${w.status}</span></div>`).join("")||`<div class="empty">No requests yet</div>`}`;
+}
+
+async function aUs(){
+  amc().innerHTML=`<h2 class="ptitle">Users</h2><div class="load-st">Loading...</div>`;
+  const{db,collection,getDocs}=f();
+  const snap=await getDocs(collection(db,"users"));
+  let h=`<h2 class="ptitle">Users <span style="color:var(--sky3);font-size:17px;font-family:'Space Grotesk'">(${snap.size})</span></h2>`;
+  snap.docs.forEach(d=>{
+    const cu=d.data(),uid=d.id;if(cu.role==="admin")return;
+    h+=`<div class="ucard">
+    <div class="uc-head"><div><div class="u-name">${cu.name}</div><div class="u-det">${cu.email}</div></div>
+    <span class="badge ${cu.status==="active"?"approved":"rejected"}">${cu.status||"active"}</span></div>
+    <div class="u-meta"><span>◆ ${cu.coins||0}</span><span>👥 ${cu.referralCount||0}</span><span>✅ ${(cu.completedTasks||[]).length}</span></div>
+    <div class="brow">
+      <button class="bv-b" onclick="addC('${uid}','${cu.name}')">+ Coins</button>
+      <button class="${cu.status==="blocked"?"bg-b":"br-b"}" onclick="blkU('${uid}','${cu.status||"active"}')">${cu.status==="blocked"?"Unblock":"🚫 Block"}</button>
+    </div></div>`;
+  });
+  amc().innerHTML=h;
+}
+
+window.addC=async(uid,name)=>{
+  const a=prompt(`Add coins to ${name}:`);
+  if(!a||isNaN(a)||+a<=0)return;
+  await f().updateDoc(f().doc(f().db,"users",uid),{coins:f().increment(+a)});
+  toast(`✅ ${a} coins added to ${name}`);aUs();
+};
+window.blkU=async(uid,cur)=>{
+  const ns=cur==="blocked"?"active":"blocked";
+  await f().updateDoc(f().doc(f().db,"users",uid),{status:ns});
+  toast(ns==="blocked"?"User blocked":"User unblocked");aUs();
+};
+
+async function aWd(){
+  amc().innerHTML=`<h2 class="ptitle">Payouts</h2><div class="load-st">Loading...</div>`;
+  const{db,collection,query,orderBy,getDocs}=f();
+  const snap=await getDocs(query(collection(db,"withdrawalRequests"),orderBy("createdAt","desc")));
+  let h=`<h2 class="ptitle">Payout Requests</h2>`;
+  if(snap.empty)h+=`<div class="empty">No requests yet</div>`;
+  snap.docs.forEach(d=>{
+    const w=d.data(),wid=d.id;
+    h+=`<div class="ucard">
+    <div class="uc-head">
+      <div><div class="u-name">${w.userName}</div><div class="u-det">${w.method} · ${w.account}</div><div class="u-det">${w.date||""}</div></div>
+      <div style="text-align:right"><div style="font-family:'Bebas Neue';color:var(--gold);font-size:24px">◆ ${w.amount}</div><span class="badge ${(w.status||"").toLowerCase()}">${w.status}</span></div>
+    </div>
+    ${w.status==="Pending"?`<div class="brow"><button class="bg-b" onclick="apW('${wid}','${w.uid}',${w.amount})">✅ Approve</button><button class="br-b" onclick="rjW('${wid}','${w.uid}',${w.amount})">❌ Reject</button></div>`:""}
+    </div>`;
+  });
+  amc().innerHTML=h;
+}
+
+window.apW=async(wid,uid,amt)=>{
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"withdrawalRequests",wid),{status:"Approved"});
+  await updateDoc(doc(db,"users",uid),{totalWithdrawn:increment(amt)});
+  toast("✅ Approved!");aWd();
+};
+window.rjW=async(wid,uid,amt)=>{
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"withdrawalRequests",wid),{status:"Rejected"});
+  await updateDoc(doc(db,"users",uid),{coins:increment(amt)});
+  toast("Rejected — coins refunded");aWd();
+};
+
+function aTs(){
+  const TL=[["📅","Daily Check-In",10],["▶️","YouTube Subscribe",25],["📢","WhatsApp Share",15],["⭐","Rate App",20],["👥","Invite Friend",50]];
+  amc().innerHTML=`<h2 class="ptitle">Tasks</h2>`+TL.map(([ic,nm,c])=>`
+  <div class="ucard" style="display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;gap:12px;align-items:center">
+      <span style="font-size:28px">${ic}</span>
+      <div><div class="u-name">${nm}</div><div style="font-family:'Bebas Neue';color:var(--gold);font-size:18px;letter-spacing:.5px">+${c} coins</div></div>
+    </div>
+    <span class="badge approved">Active</span>
+  </div>`).join("");
+}
+
+
+/* ════════ VIDEOS PAGE ════════ */
+async function pVideos(){
+  const cu=u(),watched=cu.watchedVideos||[];
+  mc().innerHTML=`<h2 class="ptitle">▶️ Videos & Earn</h2>
+  <div class="vid-bar">📺 Video dekho aur coins pao!</div>
+  <div id="vlist"><div class="load-st">Loading videos...</div></div>
+  <div id="vmodal"></div>`;
+  try{
+    const{db,collection,query,orderBy,getDocs}=f();
+    const snap=await getDocs(query(collection(db,"videos"),orderBy("createdAt","desc")));
+    const el=$("vlist");if(!el)return;
+    if(snap.empty){el.innerHTML=`<div class="empty">📭 Koi video nahi — admin se add karwao</div>`;return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const v=d.data(),vid=d.id,done=watched.includes(vid);
+      let yt="";try{const m=v.url.match(/(?:v=|youtu\.be\/)([^&?\/]+)/);if(m)yt="https://img.youtube.com/vi/"+m[1]+"/mqdefault.jpg";}catch(e){}
+      return`<div class="vcard${done?" done":""}">
+        <div class="vthumb${done?" vdone":""}" onclick="${done?"":`wVid('${vid}','${v.url}',${v.coins||5})`}"
+          style="${yt?`background-image:url('${yt}');background-size:cover;background-position:center`:""}">
+          <div class="vplay">▶</div>${done?`<div class="vcheck">✓</div>`:""}
+        </div>
+        <div class="vinfo">
+          <div class="vtitle">${v.title||"Video"}</div>
+          <div class="vmeta">${v.channel||""}${v.duration?" · "+v.duration:""}</div>
+          <div class="vcrow">
+            <span class="vc">+${v.coins||5} 💰</span>
+            ${done?`<span class="vw">✓ Watched</span>`:`<button class="vbtn" onclick="wVid('${vid}','${v.url}',${v.coins||5})">Watch & Earn</button>`}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){const el=$("vlist");if(el)el.innerHTML=`<div class="empty">Error loading videos</div>`;}
+}
+
+window.wVid=function(vid,url,coins){
+  const cu=u();
+  if((cu.watchedVideos||[]).includes(vid)){toast("Already watched!","e");return;}
+  let sec=15;
+  $("vmodal").innerHTML=`<div class="vov"><div class="vmd">
+    <div style="font-size:13px;color:#7dd3fc;margin-bottom:12px">📺 Video dekh rahe hain...</div>
+    <div class="vtring"><span id="vct">${sec}</span>s</div>
+    <p style="color:#64748b;font-size:12px;margin:10px 0">YouTube par link khul gaya</p>
+    <div id="vclaim"></div>
+    <button onclick="$('vmodal').innerHTML=''" style="margin-top:10px;padding:8px 20px;background:transparent;border:1px solid #334155;border-radius:8px;color:#64748b;cursor:pointer">Cancel</button>
+  </div></div>`;
+  window.open(url,"_blank");
+  const t=setInterval(()=>{
+    sec--;const e=$("vct");if(e)e.textContent=sec;
+    if(sec<=0){clearInterval(t);const c=$("vclaim");
+      if(c)c.innerHTML=`<button class="btn-gold" onclick="clmV('${vid}',${coins})">🎉 +${coins} Coins Claim Karein!</button>`;}
+  },1000);
+};
+
+window.clmV=async function(vid,coins){
+  const cu=u();
+  if((cu.watchedVideos||[]).includes(vid)){toast("Already claimed!","e");$("vmodal").innerHTML="";return;}
+  const{db,doc,updateDoc,increment}=f();
+  await updateDoc(doc(db,"users",cu.uid),{coins:increment(coins),watchedVideos:[...(cu.watchedVideos||[]),vid]});
+  cu.coins=(cu.coins||0)+coins;cu.watchedVideos=[...(cu.watchedVideos||[]),vid];
+  upd();$("vmodal").innerHTML="";toast(`▶️ +${coins} Coins!`);pVideos();
+};
+
+/* ════════ ADMIN VIDEOS ════════ */
+async function aVid(){
+  amc().innerHTML=`<h2 class="ptitle">▶️ Videos</h2>
+  <button class="bv-b" style="width:100%;padding:12px;margin-bottom:14px;font-size:14px" onclick="showVF()">+ Naya Video Add Karein</button>
+  <div id="avf"></div>
+  <div id="avlist"><div class="load-st">Loading...</div></div>`;
+  loadAV();
+}
+
+async function loadAV(){
+  try{
+    const{db,collection,query,orderBy,getDocs}=f();
+    const snap=await getDocs(query(collection(db,"videos"),orderBy("createdAt","desc")));
+    const el=$("avlist");if(!el)return;
+    if(snap.empty){el.innerHTML=`<div class="empty">Koi video nahi — upar se add karo</div>`;return;}
+    el.innerHTML=snap.docs.map(d=>{
+      const v=d.data(),vid=d.id;
+      return`<div class="ucard">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:26px;flex-shrink:0">▶️</span>
+          <div style="flex:1;min-width:0">
+            <div class="u-name" style="font-size:13px">${v.title||"Video"}</div>
+            <div class="u-det">${v.channel||""}${v.duration?" · "+v.duration:""}</div>
+            <div style="color:var(--gold);font-size:12px">+${v.coins||5} coins</div>
+            <div style="color:#334155;font-size:10px;word-break:break-all;margin-top:3px">${v.url||""}</div>
+          </div>
+        </div>
+        <div class="brow" style="margin-top:10px">
+          <button class="bv-b" onclick="window.open('${v.url}','_blank')">▶ Preview</button>
+          <button class="br-b" onclick="delV('${vid}')">🗑️ Delete</button>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){const el=$("avlist");if(el)el.innerHTML=`<div class="empty">${e.message}</div>`;}
+}
+
+window.showVF=()=>{
+  $("avf").innerHTML=`<div class="wf" style="margin-bottom:14px">
+    <h3 style="margin-bottom:14px">📹 Add Video</h3>
+    <div class="fg"><label class="fl">Title *</label><input class="fi" id="vt" placeholder="Video ka naam"/></div>
+    <div class="fg"><label class="fl">YouTube URL *</label><input class="fi" id="vu" placeholder="https://youtube.com/watch?v=..."/></div>
+    <div class="fg"><label class="fl">Channel</label><input class="fi" id="vc" placeholder="Channel naam"/></div>
+    <div class="fg"><label class="fl">Duration</label><input class="fi" id="vd" placeholder="3:45"/></div>
+    <div class="fg"><label class="fl">Coins Reward</label><input class="fi" id="vco" type="number" value="5" placeholder="5"/></div>
+    <div id="verr"></div>
+    <button class="bg-b" style="width:100%;padding:13px;font-size:15px" onclick="svV()">✅ Video Save Karein</button>
+    <button onclick="$('avf').innerHTML=''" style="width:100%;padding:10px;margin-top:8px;background:transparent;border:1px solid #334155;border-radius:10px;color:#64748b;cursor:pointer">Cancel</button>
+  </div>`;
+};
+
+window.svV=async()=>{
+  const t=$("vt")?.value.trim(),u2=$("vu")?.value.trim(),c=$("vc")?.value.trim(),d=$("vd")?.value.trim(),co=parseInt($("vco")?.value)||5,err=$("verr");
+  if(!t){err.innerHTML=`<div class="err-box">Title zaruri hai</div>`;return;}
+  if(!u2||!u2.includes("youtube")){err.innerHTML=`<div class="err-box">Sahi YouTube URL daalein</div>`;return;}
+  const btn=document.querySelector(".wf .bg-b");btn.disabled=true;btn.textContent="Saving...";
+  try{
+    const{db,addDoc,collection,serverTimestamp}=f();
+    await addDoc(collection(db,"videos"),{title:t,url:u2,channel:c,duration:d,coins:co,active:true,createdAt:serverTimestamp()});
+    toast("✅ Video add ho gaya!");$("avf").innerHTML="";loadAV();
+  }catch(e){err.innerHTML=`<div class="err-box">${e.message}</div>`;btn.disabled=false;btn.textContent="Save Karein";}
+};
+
+window.delV=async vid=>{
+  if(!confirm("Delete this video?"))return;
+  const{db,doc,deleteDoc}=f();
+  await deleteDoc(doc(db,"videos",vid));
+  toast("🗑️ Deleted");loadAV();
+};
+
+window.doOut=async()=>await f().signOut(f().auth);
+</script>
+
+<script>
+if("serviceWorker"in navigator)
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>

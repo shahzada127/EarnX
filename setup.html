@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>EarnPro — Admin Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:#060B18;display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Space Grotesk',sans-serif;color:#E8F4FF}
+.card{width:100%;max-width:420px}
+.brand{text-align:center;margin-bottom:24px}
+.ico{width:80px;height:80px;border-radius:22px;background:linear-gradient(135deg,#1a0a30,#2d1060);border:2px solid rgba(123,97,255,.5);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 0 40px rgba(123,97,255,.3)}
+h1{font-family:'Bebas Neue';font-size:42px;color:#7B61FF;letter-spacing:2px}
+.sub{color:#3D5A80;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.glass{background:rgba(13,21,38,.97);border-radius:24px;padding:28px;border:1px solid #1A2840;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.info{background:rgba(123,97,255,.08);border:1px solid rgba(123,97,255,.25);border-radius:12px;padding:16px;margin-bottom:22px;font-size:13px;line-height:1.8;color:#93C5FD}
+.info strong{color:#7B61FF;display:block;margin-bottom:4px;font-size:14px}
+.cred{background:rgba(34,211,165,.06);border:1px solid rgba(34,211,165,.2);border-radius:12px;padding:16px;margin-bottom:22px}
+.cred p{color:#94A3B8;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.cred-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cred-row:last-child{margin-bottom:0}
+.cred-lbl{color:#64748B;font-size:13px}
+.cred-val{color:#22D3A5;font-family:monospace;font-size:14px;font-weight:700;background:rgba(34,211,165,.1);padding:4px 10px;border-radius:8px}
+.btn{width:100%;padding:16px;background:linear-gradient(135deg,#7B61FF,#5030bb);border:none;border-radius:14px;color:#fff;font-size:17px;font-weight:700;cursor:pointer;font-family:'Space Grotesk';transition:opacity .2s,transform .1s;letter-spacing:.3px}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.err{background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.3);color:#FF4D6D;font-size:13px;text-align:center;padding:12px;border-radius:10px;margin:12px 0;line-height:1.5}
+.ok{background:rgba(34,211,165,.08);border:1px solid rgba(34,211,165,.3);color:#22D3A5;font-size:14px;text-align:center;padding:16px;border-radius:12px;margin:12px 0;font-weight:600;line-height:1.7}
+.warn{background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.2);border-radius:12px;padding:14px;margin-top:18px;color:#F5C518;font-size:12px;line-height:1.7;text-align:center}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <div class="ico">⚙️</div>
+    <h1>Admin Setup</h1>
+    <p class="sub">One Time Setup · EarnPro</p>
+  </div>
+
+  <div class="glass">
+    <div class="info">
+      <strong>👋 Assalam o Alaikum!</strong>
+      Yeh file automatically aapka Admin account banayegi. Bas neeche <strong>"Admin Account Banao"</strong> button dabao — sab kuch ready hai!
+    </div>
+
+    <!-- Pre-made credentials -->
+    <div class="cred">
+      <p>🔐 Aapki Login Details</p>
+      <div class="cred-row">
+        <span class="cred-lbl">Email</span>
+        <span class="cred-val">admin@earnpro.com</span>
+      </div>
+      <div class="cred-row">
+        <span class="cred-lbl">Password</span>
+        <span class="cred-val">Admin@1234</span>
+      </div>
+    </div>
+
+    <div id="msg"></div>
+
+    <button class="btn" id="sbtn" onclick="doSetup()">
+      🚀 Admin Account Banao
+    </button>
+
+    <div class="warn">
+      ⚠️ Account banne ke baad yeh file GitHub se <strong>delete</strong> zaroor karna!
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,updatePassword}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyBr_X6fSwLBhCiCgSLiPQpG0xLQLGlzxiM",
+  authDomain:"earnx-aac00.firebaseapp.com",
+  projectId:"earnx-aac00",
+  storageBucket:"earnx-aac00.firebasestorage.app",
+  messagingSenderId:"449198718530",
+  appId:"1:449198718530:web:ea2f129b7c28cb17a1b7db"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+// Fixed credentials
+const ADMIN_EMAIL="admin@earnpro.com";
+const ADMIN_PASS="Admin@1234";
+const ADMIN_NAME="Admin";
+
+window.doSetup=async()=>{
+  const msg=document.getElementById("msg");
+  const btn=document.getElementById("sbtn");
+  btn.disabled=true;
+  btn.innerHTML=`<span class="spinner"></span>Ban raha hai...`;
+  msg.innerHTML="";
+
+  try{
+    let uid="";
+
+    // Pehle try karo create karna
+    try{
+      const cr=await createUserWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASS);
+      uid=cr.user.uid;
+    }catch(ex){
+      // Agar pehle se hai to login karo
+      if(ex.code==="auth/email-already-in-use"){
+        const cr=await signInWithEmailAndPassword(auth,ADMIN_EMAIL,ADMIN_PASS);
+        uid=cr.user.uid;
+      } else {
+        throw ex;
+      }
+    }
+
+    // Firestore mein check karo already hai ya nahi
+    const ref=doc(db,"users",uid);
+    const snap=await getDoc(ref);
+
+    if(!snap.exists()){
+      // Naya document banao
+      await setDoc(ref,{
+        name:ADMIN_NAME,
+        email:ADMIN_EMAIL,
+        coins:0,
+        role:"admin",
+        inviteCode:"ADMIN-ONLY",
+        invitedBy:null,
+        referralCount:0,
+        totalWithdrawn:0,
+        spinsAvailable:0,
+        freeSpinUsed:false,
+        bigPrizeAllowed:false,
+        iPhoneWinner:false,
+        iphonePending:false,
+        completedTasks:[],
+        watchedVideos:[],
+        lastCheckin:null,
+        status:"active",
+        createdAt:serverTimestamp()
+      });
+    } else if(snap.data().role!=="admin"){
+      // Role update karo agar user hai
+      await setDoc(ref,{...snap.data(), role:"admin"},{merge:true});
+    }
+
+    msg.innerHTML=`<div class="ok">
+      ✅ Admin Account Ready Hai!<br><br>
+      <span style="font-size:13px;opacity:.85">
+        📧 Email: <strong>admin@earnpro.com</strong><br>
+        🔑 Password: <strong>Admin@1234</strong><br><br>
+        Ab main website par login karo.<br>
+        Login ke baad password change kar sakte ho!
+      </span>
+    </div>`;
+    btn.innerHTML="✅ Account Ready — Login Karo!";
+    btn.style.background="linear-gradient(135deg,#10b981,#059669)";
+    btn.onclick=()=>window.location.href="/";
+
+  }catch(ex){
+    const errors={
+      "auth/weak-password":"Password zyada strong karo",
+      "auth/invalid-email":"Email galat hai",
+      "auth/network-request-failed":"Internet check karo",
+      "auth/too-many-requests":"Zyada attempts — thodi der baad try karo",
+    };
+    msg.innerHTML=`<div class="err">❌ ${errors[ex.code]||ex.message}</div>`;
+    btn.disabled=false;
+    btn.innerHTML="🚀 Admin Account Banao";
+  }
+};
+</script>
+</body>
+</html>

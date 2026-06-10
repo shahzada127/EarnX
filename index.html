@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ur" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>PaisaBoom - Earn & Win</title>
+  <meta name="theme-color" content="#00C853">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- AUTH VIEW -->
+<div id="authView" class="auth-container">
+  <div id="loginForm" class="auth-box">
+    <div class="auth-logo">
+      <div class="logo-icon">💰</div>
+      <h1>PaisaBoom</h1>
+      <p>Kamao • Jeeto • Withdraw Karo</p>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="apka@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="loginBtn" onclick="doLogin()">Login Karen</button>
+    <div class="auth-switch">Account nahi? <a href="#" onclick="showRegisterForm()">Register Karen</a></div>
+  </div>
+
+  <div id="registerForm" class="auth-box" style="display:none">
+    <div class="auth-logo">
+      <div class="logo-icon">🚀</div>
+      <h1>Join PaisaBoom</h1>
+      <p>Free mein register karen!</p>
+    </div>
+    <div class="form-group">
+      <label>Apka Naam</label>
+      <input type="text" id="regName" placeholder="Muhammad Ali" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="regEmail" placeholder="apka@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label>Password (6+ characters)</label>
+      <input type="password" id="regPass" placeholder="••••••••" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Referral Code (Optional)</label>
+      <input type="text" id="regRef" placeholder="ABCD12" style="text-transform:uppercase" maxlength="6">
+    </div>
+    <button class="btn-primary" id="registerBtn" onclick="doRegister()">Account Banayein</button>
+    <div class="auth-switch">Account hai? <a href="#" onclick="showLoginForm()">Login Karen</a></div>
+  </div>
+</div>
+
+<!-- APP VIEW -->
+<div id="appView" class="app-container" style="display:none">
+  <nav class="top-nav">
+    <div class="nav-logo">💰 PaisaBoom</div>
+    <div class="coin-display">
+      <span class="coin-icon">🪙</span>
+      <span class="user-coins">0</span>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <div class="balance-card">
+        <div class="balance-label">Aapke Coins</div>
+        <div class="balance-amount" id="balanceCoins">0</div>
+        <div class="balance-coins">🪙 Coins</div>
+        <div class="balance-sub">≈ PKR <span id="balancePKR">0</span> • 10 Coins = PKR 1</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-icon">🏆</div><div class="stat-val" id="statCoins">0</div><div class="stat-label">Total Kamaye</div></div>
+        <div class="stat-box"><div class="stat-icon">👥</div><div class="stat-val" id="statRefs">0</div><div class="stat-label">Referrals</div></div>
+        <div class="stat-box"><div class="stat-icon">🔥</div><div class="stat-val" id="statStreak">0</div><div class="stat-label">Day Streak</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🎁 Daily Check-in</div>
+        <div class="checkin-days" id="checkinDays"></div>
+        <button class="checkin-btn" id="checkinBtn" onclick="doCheckIn()">🎁 Check-in Karen</button>
+      </div>
+      <div class="card">
+        <div class="card-title">✅ Daily Tasks</div>
+        <div id="tasksList"></div>
+      </div>
+    </div>
+
+    <!-- EARN -->
+    <div id="page-earn" class="page">
+      <div class="card">
+        <div class="card-title">🎬 Videos Dekhen</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Video dekhein phir Claim karen</p>
+        <div id="videosList"></div>
+      </div>
+      <div class="card" id="ytSubsList"></div>
+    </div>
+
+    <!-- SPIN -->
+    <div id="page-spin" class="page">
+      <div class="card" style="text-align:center">
+        <div class="card-title" style="justify-content:center">🎰 Lucky Spin</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Roz ek baar spin karen!</p>
+        <div class="spin-container">
+          <div class="wheel-wrapper">
+            <div class="wheel-pointer">▼</div>
+            <canvas id="spinWheel" width="260" height="260"></canvas>
+          </div>
+          <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎰 Spin Karen</button>
+          <div class="spin-info">Har roz 1 free spin milta hai</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALLET -->
+    <div id="page-wallet" class="page">
+      <div class="card">
+        <div class="card-title">💸 Withdrawal</div>
+        <div id="withdrawLocked" class="withdraw-locked" style="display:none">
+          <div class="lock-icon">🔒</div>
+          <h3>Withdrawal Band Hai</h3>
+          <p id="lockMsg">Admin ne abhi withdrawal lock kiya hua hai.</p>
+        </div>
+        <div id="withdrawForm">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Min: 500 Coins = PKR 50</p>
+          <div class="card-title" style="font-size:13px;margin-bottom:8px">Payment Method</div>
+          <div class="method-select">
+            <div class="method-btn" data-method="jazzcash" onclick="selectMethod('jazzcash')"><div class="m-icon">📱</div><div class="m-name">JazzCash</div></div>
+            <div class="method-btn" data-method="easypaisa" onclick="selectMethod('easypaisa')"><div class="m-icon">💚</div><div class="m-name">Easypaisa</div></div>
+            <div class="method-btn" data-method="bank" onclick="selectMethod('bank')"><div class="m-icon">🏦</div><div class="m-name">Bank</div></div>
+          </div>
+          <div class="card-title" style="font-size:13px;margin-bottom:8px">Amount (PKR)</div>
+          <div class="amount-options">
+            <div class="amount-opt" data-amount="50" onclick="selectAmount(50)">PKR 50<br><span style="font-size:10px;color:var(--muted)">500 coins</span></div>
+            <div class="amount-opt" data-amount="100" onclick="selectAmount(100)">PKR 100<br><span style="font-size:10px;color:var(--muted)">1000 coins</span></div>
+            <div class="amount-opt" data-amount="200" onclick="selectAmount(200)">PKR 200<br><span style="font-size:10px;color:var(--muted)">2000 coins</span></div>
+            <div class="amount-opt" data-amount="500" onclick="selectAmount(500)">PKR 500<br><span style="font-size:10px;color:var(--muted)">5000 coins</span></div>
+            <div class="amount-opt" data-amount="1000" onclick="selectAmount(1000)">PKR 1000<br><span style="font-size:10px;color:var(--muted)">10000 coins</span></div>
+            <div class="amount-opt" data-amount="2000" onclick="selectAmount(2000)">PKR 2000<br><span style="font-size:10px;color:var(--muted)">20000 coins</span></div>
+          </div>
+          <input class="withdraw-input" type="tel" id="accountNum" placeholder="Account number daalen">
+          <button class="btn-primary" id="withdrawBtn" onclick="submitWithdraw()">Request Karen</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Withdrawal History</div>
+        <div id="withdrawHistory"><p style="color:var(--muted);text-align:center;padding:20px">Koi request nahi</p></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-profile" class="page">
+      <div class="profile-header">
+        <div class="profile-avatar">👤</div>
+        <div class="profile-name" id="profileName">User</div>
+        <div class="profile-email" id="profileEmail"></div>
+        <div style="margin-top:8px;font-size:13px;color:var(--muted)">Balance: <span style="color:var(--accent);font-weight:700" id="profileCoins">0</span> Coins</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🤝 Referral Program</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Dost invite karo → 500 coins aapko, 200 dost ko!</p>
+        <div class="referral-code-box">
+          <div class="ref-code" id="refCode">------</div>
+          <button class="copy-btn" onclick="copyRefCode()">Copy</button>
+        </div>
+        <div class="ref-stats">
+          <div class="ref-stat"><div class="rs-val" id="refCount">0</div><div class="rs-label">Total Referrals</div></div>
+          <div class="ref-stat"><div class="rs-val" id="refEarn">0</div><div class="rs-label">Referral Coins</div></div>
+        </div>
+        <button class="btn-primary" onclick="shareApp()" style="background:linear-gradient(135deg,#1565C0,#0288D1)">📢 App Share Karen</button>
+      </div>
+      <div class="card">
+        <ul class="profile-menu">
+          <li onclick="showPage('wallet')"><span class="pm-icon">💸</span>Withdrawal History<span class="pm-arrow">›</span></li>
+          <li onclick="shareApp()"><span class="pm-icon">📢</span>App Share Karen<span class="pm-arrow">›</span></li>
+          <li onclick="if(confirm('Logout?')) doLogout()" style="color:var(--danger)"><span class="pm-icon">🚪</span>Logout<span class="pm-arrow">›</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home" onclick="showPage('home')"><span class="nav-icon">🏠</span><span>Home</span></button>
+    <button class="nav-item" data-page="earn" onclick="showPage('earn')"><span class="nav-icon">🎬</span><span>Earn</span></button>
+    <button class="nav-item" data-page="spin" onclick="showPage('spin')"><span class="nav-icon">🎰</span><span>Spin</span></button>
+    <button class="nav-item" data-page="wallet" onclick="showPage('wallet')"><span class="nav-icon">💸</span><span>Wallet</span></button>
+    <button class="nav-item" data-page="profile" onclick="showPage('profile')"><span class="nav-icon">👤</span><span>Profile</span></button>
+  </nav>
+</div>
+
+<!-- REWARD MODAL -->
+<div id="rewardModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon" id="modalIcon">🎉</div>
+    <div class="modal-title" id="modalTitle">Mubarak!</div>
+    <div class="modal-coins" id="modalCoins">+0 Coins</div>
+    <div class="modal-msg">Coins aapke account mein add ho gaye!</div>
+    <button class="modal-btn" onclick="closeModal()">Shukriya! 🎉</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="js/supabase-config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
